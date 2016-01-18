@@ -42,6 +42,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.Parse;
+import com.parse.ParseObject;
+
 public class MainActivity extends ActionBarActivity {
 
         private Button signButton,registerNowButton;
@@ -53,6 +56,14 @@ public class MainActivity extends ActionBarActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+
+            Parse.enableLocalDatastore(this);
+
+            Parse.initialize(this);
+
+            ParseObject testObject = new ParseObject("TestObject");
+            testObject.put("foo", "bar");
+            testObject.saveInBackground();
 
             signButton = (Button)findViewById(R.id.signButton);
             registerNowButton = (Button)findViewById(R.id.registerButton);

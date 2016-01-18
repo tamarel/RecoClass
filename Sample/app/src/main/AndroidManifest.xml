@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.microsoft.projectoxford.face.samples" >
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -12,6 +13,12 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.parse.APPLICATION_ID"
+            android:value="BJfgq3GzOoiQ0RQfMPVMS58256tyoz2fRNjMoAHf" />
+        <meta-data
+            android:name="com.parse.CLIENT_KEY"
+            android:value="lxsdxA1rXe5Kp0DQGCiNa1cE4RJwer1Vm7FiWi3s" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -162,8 +169,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".IdentificationActivity" />
-        </activity>
-        <activity android:name=".RecoClassActivity" >
         </activity>
     </application>
 
