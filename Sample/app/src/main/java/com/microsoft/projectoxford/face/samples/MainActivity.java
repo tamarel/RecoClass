@@ -44,18 +44,27 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
 
-    private Button signButton,registerNowButton;
-    private TextView userName,password,helloGuest;
-    private EditText passwordField,userNameField;
-    private ImageView logo;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_reco_class);
+        private Button signButton,registerNowButton;
+        private TextView userName,password,helloGuest;
+        private EditText passwordField,userNameField;
+        private ImageView logo;
 
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+            init();
+            signButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
 
-    }
+                    Intent intent = new Intent(getBaseContext(), IdentificationActivity.class);
+                    startActivity(intent);
+
+                }
+            });
+
+        }
 
 
     private void  init (){
@@ -70,7 +79,8 @@ public class MainActivity extends ActionBarActivity {
 
         logo=(ImageView)findViewById(R.id.logo);
 
-
-
     }
+
+
+
 }

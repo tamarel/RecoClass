@@ -504,7 +504,7 @@ public class PersonGroupActivity extends ActionBarActivity {
                 Uri uri = Uri.parse(StorageHelper.getFaceUri(it.next(), PersonGroupActivity.this));
                 ((ImageView)convertView.findViewById(R.id.image_person)).setImageURI(uri);
             } else {
-                Drawable drawable = getResources().getDrawable(R.drawable.select_image);
+                Drawable drawable = getResources().getDrawable(R.drawable.logo);
                 ((ImageView)convertView.findViewById(R.id.image_person)).setImageDrawable(drawable);
             }
 
