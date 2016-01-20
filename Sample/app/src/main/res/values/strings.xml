@@ -36,7 +36,15 @@
     <!-- Verification activity -->
     <string name="face">Face:</string>
     <string name="group">Group</string>
+    <string name="hello">Hello World, ParseStarterProjectActivity!</string>
 
+    <string name="Username">Username</string>
+    <string name="Password">Password</string>
+    <string name="LoginBtn">Login</string>
+    <string name="SignupBtn">Sign Up</string>
+    <string name="LogoutBtn">Log Out</string>
+    <string name="Welcome">Welcome!</string>
+    <string name="email">Email!</string>
     <!-- Identification activity -->
     <string name="identify">Identify</string>
     <string name="manage_person_groups">Manage\nPerson\nGroups</string>
@@ -98,5 +106,19 @@
     <string name="user_provided_description_data">User data</string>
     <string name="user_provided_person_group_name">Person group name</string>
     <string name="user_provided_person_group_description_data">User data</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 
 </resources>

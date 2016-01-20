@@ -27,17 +27,33 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:text="Name"
+        android:ems="10"
+        android:id="@+id/userNameFieldText"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/userNameLable" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Password"
         android:id="@+id/passwordLable"
-        android:layout_marginTop="60dp"
+
         android:layout_below="@+id/userNameFieldText"
-        android:layout_toLeftOf="@+id/helloGuestLable"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/passwordFieldText"
+        android:layout_below="@+id/passwordLable" />
 
     <Button
         android:layout_width="wrap_content"
@@ -48,26 +64,9 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/passwordFieldText"
-        android:layout_alignBottom="@+id/passwordLable"
-        android:layout_alignLeft="@+id/signButton"
-        android:layout_alignStart="@+id/signButton" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="Name"
-        android:ems="10"
-        android:id="@+id/userNameFieldText"
-        android:layout_centerVertical="true"
-        android:layout_alignRight="@+id/registerButton"
-        android:layout_alignEnd="@+id/registerButton" />
+
+
 
     <TextView
         android:layout_width="wrap_content"
@@ -85,6 +84,7 @@
         android:layout_height="wrap_content"
         android:text="SIGN"
         android:id="@+id/signButton"
-        android:layout_below="@+id/passwordFieldText"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/registerButton"
+        android:layout_toLeftOf="@+id/logo"
+        android:layout_toStartOf="@+id/logo" />
 </RelativeLayout>
