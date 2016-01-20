@@ -58,12 +58,14 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -413,8 +415,10 @@ public class PersonGroupActivity extends ActionBarActivity {
             return;
         }
 
-        StorageHelper.setPersonGroupName(personGroupId, newPersonGroupName, PersonGroupActivity.this);
+        //StorageHelper.setPersonGroupName(personGroupId, newPersonGroupName, PersonGroupActivity.this);
 
+
+        StorageHelper.setGroupName(personGroupId,  ParseUser.getCurrentUser().get("username").toString(),newPersonGroupName,PersonGroupActivity.this);
         if (trainPersonGroup) {
             new TrainPersonGroupTask().execute(personGroupId);
         } else {

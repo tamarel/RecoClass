@@ -50,6 +50,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.Face;
@@ -546,6 +547,11 @@ public class IdentificationActivity extends ActionBarActivity {
         // Initialize with detection result.
         PersonGroupListAdapter() {
             personGroupIdList = new ArrayList<>();
+
+            Toast.makeText(
+                    getApplicationContext(),
+                   "personGroupIds=",
+                    Toast.LENGTH_LONG).show();
 
             Set<String> personGroupIds
                     = StorageHelper.getAllPersonGroupIds(IdentificationActivity.this);

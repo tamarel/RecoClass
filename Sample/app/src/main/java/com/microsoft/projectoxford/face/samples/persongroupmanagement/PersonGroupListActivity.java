@@ -59,6 +59,7 @@ import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -256,12 +257,19 @@ public class PersonGroupListActivity extends ActionBarActivity {
             longPressed = false;
             personGroupIdList = new ArrayList<>();
             personGroupChecked = new ArrayList<>();
+            //with parse
+            ArrayList<String> personGroupIds1 = StorageHelper.getAllPersonGroupIdsByUserName(PersonGroupListActivity.this,ParseUser.getCurrentUser().get("username").toString());
 
             Set<String> personGroupIds = StorageHelper.getAllPersonGroupIds(PersonGroupListActivity.this);
             for (String personGroupId: personGroupIds) {
                 personGroupIdList.add(personGroupId);
                 personGroupChecked.add(false);
             }
+            for (String personGroupId: personGroupIds1) {
+                personGroupIdList.add(personGroupId);
+                personGroupChecked.add(false);
+            }
+
         }
 
         @Override

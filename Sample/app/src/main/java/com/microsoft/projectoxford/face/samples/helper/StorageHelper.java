@@ -34,7 +34,17 @@ package com.microsoft.projectoxford.face.samples.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+import android.widget.Toast;
 
+
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,17 +52,68 @@ import java.util.Set;
 /**
  * Defined several functions to manage local storage.
  */
+
 public class StorageHelper {
+
+
+
+
     public static Set<String> getAllPersonGroupIds(Context context) {
         SharedPreferences personGroupIdSet =
                 context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
         return personGroupIdSet.getStringSet("PersonGroupIdSet", new HashSet<String>());
     }
 
+    public static ArrayList<String> getAllPersonGroupIdsByUserName(Context context,String lectureName) {
+        ArrayList<String> listOfCourse=new ArrayList<>();
+       ArrayList<ParseObject> listCourse=new ArrayList<>();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("lectureName", lectureName);
+        try{
+            listCourse =( ArrayList<ParseObject>)query.find();
+        }
+        catch (com.parse.ParseException e){
+
+        }
+
+    for (ParseObject course :listCourse) {
+
+        listOfCourse.add(course.get("CourseName").toString());
+    }
+        return listOfCourse;
+    }
+
+
     public static String getPersonGroupName(String personGroupId, Context context) {
         SharedPreferences personGroupIdNameMap =
                 context.getSharedPreferences("PersonGroupIdNameMap", Context.MODE_PRIVATE);
         return personGroupIdNameMap.getString(personGroupId, "");
+    }
+
+    //with parse
+    public static void setGroupName(final String personGroupIdToAdd,  String lectureName, String personGroupName, Context context) {
+        final String personGroupName1=personGroupName;
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("lectureName", lectureName);
+        query.findInBackground(new FindCallback<ParseObject>() {
+                                   @Override
+                                   public void done(List<ParseObject> GroupList, com.parse.ParseException e) {
+                                       if (e == null) {
+                                           for (ParseObject nameCourse : GroupList) {
+
+                                               if (personGroupName1.equals(nameCourse.getString("GroupName")))
+                                                   return;
+                                           }
+                                       }
+                                   }
+                               });
+
+             ParseObject groupName = new ParseObject("Course");
+             groupName.put("CourseName",personGroupName1);
+             groupName.put("lectureName",lectureName);
+             groupName.saveInBackground();
+
     }
 
     public static void setPersonGroupName(String personGroupIdToAdd, String personGroupName, Context context) {
