@@ -63,6 +63,7 @@ import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
 import com.microsoft.projectoxford.face.samples.log.IdentificationLogActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity;
+import com.parse.ParseUser;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -200,8 +201,7 @@ public class IdentificationActivity extends ActionBarActivity {
             textView.setText(R.string.no_person_group_selected_for_identification_warning);
         } else {
             mPersonGroupId = mPersonGroupListAdapter.personGroupIdList.get(0);
-            String personGroupName = StorageHelper.getPersonGroupName(
-                    mPersonGroupId, IdentificationActivity.this);
+            String personGroupName = mPersonGroupListAdapter.personGroupIdList.get(0);
             refreshIdentifyButtonEnabledStatus();
             textView.setTextColor(Color.BLACK);
             textView.setText(String.format("Person group to use: %s", personGroupName));
@@ -548,16 +548,13 @@ public class IdentificationActivity extends ActionBarActivity {
         PersonGroupListAdapter() {
             personGroupIdList = new ArrayList<>();
 
-            Toast.makeText(
-                    getApplicationContext(),
-                   "personGroupIds=",
-                    Toast.LENGTH_LONG).show();
 
-            Set<String> personGroupIds
-                    = StorageHelper.getAllPersonGroupIds(IdentificationActivity.this);
+            ArrayList<String> personGroupIds
+                    = StorageHelper.getAllPersonGroupIdsByUserName(IdentificationActivity.this, ParseUser.getCurrentUser().get("username").toString());
 
             for (String personGroupId: personGroupIds) {
                 personGroupIdList.add(personGroupId);
+
                 if (mPersonGroupId != null && personGroupId.equals(mPersonGroupId)) {
                     personGroupIdList.set(
                             personGroupIdList.size() - 1,
@@ -592,8 +589,7 @@ public class IdentificationActivity extends ActionBarActivity {
             convertView.setId(position);
 
             // set the text of the item
-            String personGroupName = StorageHelper.getPersonGroupName(
-                    personGroupIdList.get(position), IdentificationActivity.this);
+            String personGroupName = personGroupIdList.get(position);
             int personNumberInGroup = StorageHelper.getAllPersonIds(
                     personGroupIdList.get(position), IdentificationActivity.this).size();
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(

@@ -38,10 +38,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -58,12 +60,7 @@ public class StorageHelper {
 
 
 
-    public static Set<String> getAllPersonGroupIds(Context context) {
-        SharedPreferences personGroupIdSet =
-                context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
-        return personGroupIdSet.getStringSet("PersonGroupIdSet", new HashSet<String>());
-    }
-
+        // with parse
     public static ArrayList<String> getAllPersonGroupIdsByUserName(Context context,String lectureName) {
         ArrayList<String> listOfCourse=new ArrayList<>();
        ArrayList<ParseObject> listCourse=new ArrayList<>();
@@ -85,11 +82,7 @@ public class StorageHelper {
     }
 
 
-    public static String getPersonGroupName(String personGroupId, Context context) {
-        SharedPreferences personGroupIdNameMap =
-                context.getSharedPreferences("PersonGroupIdNameMap", Context.MODE_PRIVATE);
-        return personGroupIdNameMap.getString(personGroupId, "");
-    }
+
 
     //with parse
     public static void setGroupName(final String personGroupIdToAdd,  String lectureName, String personGroupName, Context context) {
@@ -111,53 +104,51 @@ public class StorageHelper {
 
              ParseObject groupName = new ParseObject("Course");
              groupName.put("CourseName",personGroupName1);
-             groupName.put("lectureName",lectureName);
+             groupName.put("lectureName", lectureName);
              groupName.saveInBackground();
 
     }
 
-    public static void setPersonGroupName(String personGroupIdToAdd, String personGroupName, Context context) {
-        SharedPreferences personGroupIdNameMap =
-                context.getSharedPreferences("PersonGroupIdNameMap", Context.MODE_PRIVATE);
 
-        SharedPreferences.Editor personGroupIdNameMapEditor = personGroupIdNameMap.edit();
-        personGroupIdNameMapEditor.putString(personGroupIdToAdd, personGroupName);
-        personGroupIdNameMapEditor.commit();
 
-        Set<String> personGroupIds = getAllPersonGroupIds(context);
-        Set<String> newPersonGroupIds = new HashSet<>();
-        for (String personGroupId: personGroupIds) {
-            newPersonGroupIds.add(personGroupId);
+    // with parse
+    public static void deletePersonGroups(List<String> personGroupIdsToDelete,String courseName, Context context) {
+
+        ArrayList<ParseObject> objects = new ArrayList<>();
+        int i = 0;
+        for (String personGroupId : personGroupIdsToDelete) {
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+            query.whereEqualTo("CourseName", personGroupIdsToDelete.get(i));
+
+            query.findInBackground(new FindCallback<ParseObject>() {
+                                       @Override
+                                       public void done(List<ParseObject> list, com.parse.ParseException e) {
+                                           if (e == null) {
+
+
+                                               for (ParseObject delete : list) {
+                                                   delete.deleteInBackground();
+
+                                               }
+                                           } else {
+
+                                           }
+                                       }
+                                   });
         }
-        newPersonGroupIds.add(personGroupIdToAdd);
-        SharedPreferences personGroupIdSet =
-                context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
-        SharedPreferences.Editor personGroupIdSetEditor = personGroupIdSet.edit();
-        personGroupIdSetEditor.putStringSet("PersonGroupIdSet", newPersonGroupIds);
-        personGroupIdSetEditor.commit();
-    }
 
-    public static void deletePersonGroups(List<String> personGroupIdsToDelete, Context context) {
-        SharedPreferences personGroupIdNameMap =
-                context.getSharedPreferences("PersonGroupIdNameMap", Context.MODE_PRIVATE);
-        SharedPreferences.Editor personGroupIdNameMapEditor = personGroupIdNameMap.edit();
-        for (String personGroupId: personGroupIdsToDelete) {
-            personGroupIdNameMapEditor.remove(personGroupId);
-        }
-        personGroupIdNameMapEditor.commit();
 
-        Set<String> personGroupIds = getAllPersonGroupIds(context);
-        Set<String> newPersonGroupIds = new HashSet<>();
-        for (String personGroupId: personGroupIds) {
+        ArrayList<String> personGroupIds = getAllPersonGroupIdsByUserName(context, ParseUser.getCurrentUser().get("username")
+                .toString());
+        ArrayList<String> newPersonGroupIds = new ArrayList<>();
+
+        for (String personGroupId : personGroupIds) {
             if (!personGroupIdsToDelete.contains(personGroupId)) {
                 newPersonGroupIds.add(personGroupId);
+
+
             }
         }
-        SharedPreferences personGroupIdSet =
-                context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
-        SharedPreferences.Editor personGroupIdSetEditor = personGroupIdSet.edit();
-        personGroupIdSetEditor.putStringSet("PersonGroupIdSet", newPersonGroupIds);
-        personGroupIdSetEditor.commit();
     }
 
     public static Set<String> getAllPersonIds(String personGroupId, Context context) {

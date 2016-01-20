@@ -200,8 +200,7 @@ public class PersonGroupListActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!personGroupsListAdapter.longPressed) {
                     String personGroupId = personGroupsListAdapter.personGroupIdList.get(position);
-                    String personGroupName = StorageHelper.getPersonGroupName(
-                            personGroupId, PersonGroupListActivity.this);
+                    String personGroupName =personGroupsListAdapter.personGroupIdList.get(position);
 
                     Intent intent = new Intent(PersonGroupListActivity.this, PersonGroupActivity.class);
                     intent.putExtra("AddNewPersonGroup", false);
@@ -258,13 +257,9 @@ public class PersonGroupListActivity extends ActionBarActivity {
             personGroupIdList = new ArrayList<>();
             personGroupChecked = new ArrayList<>();
             //with parse
-            ArrayList<String> personGroupIds1 = StorageHelper.getAllPersonGroupIdsByUserName(PersonGroupListActivity.this,ParseUser.getCurrentUser().get("username").toString());
+            ArrayList<String> personGroupIds1 = StorageHelper.getAllPersonGroupIdsByUserName(PersonGroupListActivity.this, ParseUser.getCurrentUser().get("username").toString());
 
-            Set<String> personGroupIds = StorageHelper.getAllPersonGroupIds(PersonGroupListActivity.this);
-            for (String personGroupId: personGroupIds) {
-                personGroupIdList.add(personGroupId);
-                personGroupChecked.add(false);
-            }
+
             for (String personGroupId: personGroupIds1) {
                 personGroupIdList.add(personGroupId);
                 personGroupChecked.add(false);
@@ -297,10 +292,11 @@ public class PersonGroupListActivity extends ActionBarActivity {
             convertView.setId(position);
 
             // set the text of the item
-            String personGroupName = StorageHelper.getPersonGroupName(
-                    personGroupIdList.get(position), PersonGroupListActivity.this);
+            String personGroupName = personGroupIdList.get(position);
+
             int personNumberInGroup = StorageHelper.getAllPersonIds(
                     personGroupIdList.get(position), PersonGroupListActivity.this).size();
+
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
                     String.format("%s (Person count: %d)", personGroupName, personNumberInGroup));
 
@@ -328,6 +324,7 @@ public class PersonGroupListActivity extends ActionBarActivity {
         List<String> newPersonGroupIdList = new ArrayList<>();
         List<Boolean> newPersonGroupChecked = new ArrayList<>();
         List<String> personGroupIdsToDelete = new ArrayList<>();
+
         for (int i = 0; i < personGroupsListAdapter.personGroupChecked.size(); ++i) {
             if (personGroupsListAdapter.personGroupChecked.get(i)) {
                 String personGroupId = personGroupsListAdapter.personGroupIdList.get(i);
@@ -338,11 +335,13 @@ public class PersonGroupListActivity extends ActionBarActivity {
                 newPersonGroupChecked.add(false);
             }
         }
-
-        StorageHelper.deletePersonGroups(personGroupIdsToDelete, this);
-
+        StorageHelper.deletePersonGroups(personGroupIdsToDelete,ParseUser.getCurrentUser().get("username").toString() ,this);
         personGroupsListAdapter.personGroupIdList = newPersonGroupIdList;
         personGroupsListAdapter.personGroupChecked = newPersonGroupChecked;
         personGroupsListAdapter.notifyDataSetChanged();
+
+
+
+
     }
 }

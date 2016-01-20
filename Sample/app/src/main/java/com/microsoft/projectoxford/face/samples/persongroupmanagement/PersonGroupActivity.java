@@ -415,7 +415,6 @@ public class PersonGroupActivity extends ActionBarActivity {
             return;
         }
 
-        //StorageHelper.setPersonGroupName(personGroupId, newPersonGroupName, PersonGroupActivity.this);
 
 
         StorageHelper.setGroupName(personGroupId,  ParseUser.getCurrentUser().get("username").toString(),newPersonGroupName,PersonGroupActivity.this);
