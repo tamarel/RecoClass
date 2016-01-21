@@ -523,8 +523,7 @@ public class IdentificationActivity extends ActionBarActivity {
                 if (mIdentifyResults.get(position).candidates.size() > 0) {
                     String personId =
                             mIdentifyResults.get(position).candidates.get(0).personId.toString();
-                    String personName = StorageHelper.getPersonName(
-                            personId, mPersonGroupId, IdentificationActivity.this);
+                    String personName =personId;
                     String identity = "Person: " + personName + "\n"
                             + "Confidence: " + formatter.format(
                             mIdentifyResults.get(position).candidates.get(0).confidence);
@@ -590,8 +589,8 @@ public class IdentificationActivity extends ActionBarActivity {
 
             // set the text of the item
             String personGroupName = personGroupIdList.get(position);
-            int personNumberInGroup = StorageHelper.getAllPersonIds(
-                    personGroupIdList.get(position), IdentificationActivity.this).size();
+            int personNumberInGroup = StorageHelper.getAllPersonGroupIdsByUserName(
+                    IdentificationActivity.this,personGroupIdList.get(position)).size();
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
                     String.format(
                             "%s (Person count: %d)",

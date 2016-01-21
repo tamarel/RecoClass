@@ -64,6 +64,7 @@ import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
+import com.parse.ParseObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,12 +91,10 @@ public class PersonActivity extends ActionBarActivity {
                 addLog("Request: Creating Person in person group" + params[0]);
 
                 // Start the request to creating person.
-                CreatePersonResult createPersonResult = faceServiceClient.createPerson(
-                        params[0],
-                        getString(R.string.user_provided_person_name),
-                        getString(R.string.user_provided_description_data));
 
-                return createPersonResult.personId.toString();
+
+
+                return "";
             } catch (Exception e) {
                 publishProgress(e.getMessage());
                 addLog(e.getMessage());
@@ -337,11 +336,12 @@ public class PersonActivity extends ActionBarActivity {
         TextView textWarning = (TextView)findViewById(R.id.info);
         EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
         String newPersonName = editTextPersonName.getText().toString();
+
         if (newPersonName.equals("")) {
             textWarning.setText(R.string.person_name_empty_warning_message);
             return;
         }
-
+        StorageHelper.createPerson(newPersonName,"cv",personGroupId,PersonActivity.this);
         StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
 
         finish();

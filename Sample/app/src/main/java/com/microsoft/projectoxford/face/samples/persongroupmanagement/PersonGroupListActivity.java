@@ -199,6 +199,7 @@ public class PersonGroupListActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!personGroupsListAdapter.longPressed) {
+
                     String personGroupId = personGroupsListAdapter.personGroupIdList.get(position);
                     String personGroupName =personGroupsListAdapter.personGroupIdList.get(position);
 
@@ -222,6 +223,7 @@ public class PersonGroupListActivity extends ActionBarActivity {
     }
 
     public void addPersonGroup(View view) {
+
         String personGroupId = UUID.randomUUID().toString();
 
         Intent intent = new Intent(PersonGroupListActivity.this, PersonGroupActivity.class);
@@ -294,8 +296,8 @@ public class PersonGroupListActivity extends ActionBarActivity {
             // set the text of the item
             String personGroupName = personGroupIdList.get(position);
 
-            int personNumberInGroup = StorageHelper.getAllPersonIds(
-                    personGroupIdList.get(position), PersonGroupListActivity.this).size();
+            int personNumberInGroup = StorageHelper.getAllPersonGroupIdsByUserName(
+                    PersonGroupListActivity.this, personGroupIdList.get(position)).size();
 
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
                     String.format("%s (Person count: %d)", personGroupName, personNumberInGroup));

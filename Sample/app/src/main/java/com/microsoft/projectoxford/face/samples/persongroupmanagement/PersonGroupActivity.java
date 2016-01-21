@@ -354,14 +354,13 @@ public class PersonGroupActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!personGridViewAdapter.longPressed) {
                     String personId = personGridViewAdapter.personIdList.get(position);
-                    String personName = StorageHelper.getPersonName(
-                            personId, personGroupId, PersonGroupActivity.this);
+                    String personName = personId;
 
                     Intent intent = new Intent(PersonGroupActivity.this, PersonActivity.class);
                     intent.putExtra("AddNewPerson", false);
                     intent.putExtra("PersonName", personName);
                     intent.putExtra("PersonId", personId);
-                    intent.putExtra("PersonGroupId", personGroupId);
+                    intent.putExtra("PersonGroupId", ParseUser.getCurrentUser().get("username").toString());
                     startActivity(intent);
                 }
             }
@@ -408,6 +407,7 @@ public class PersonGroupActivity extends ActionBarActivity {
     }
 
     private void doneAndSave(boolean trainPersonGroup) {
+
         EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
         String newPersonGroupName = editTextPersonGroupName.getText().toString();
         if (newPersonGroupName.equals("")) {
@@ -418,7 +418,7 @@ public class PersonGroupActivity extends ActionBarActivity {
 
 
         StorageHelper.setGroupName(personGroupId,  ParseUser.getCurrentUser().get("username").toString(),newPersonGroupName,PersonGroupActivity.this);
-        if (trainPersonGroup) {
+        if (personGroupExists) {
             new TrainPersonGroupTask().execute(personGroupId);
         } else {
             finish();
@@ -469,7 +469,7 @@ public class PersonGroupActivity extends ActionBarActivity {
             personIdList = new ArrayList<>();
             personChecked = new ArrayList<>();
 
-            Set<String> personIdSet = StorageHelper.getAllPersonIds(personGroupId, PersonGroupActivity.this);
+            ArrayList<String> personIdSet = StorageHelper.getAllStudentByCourse(personGroupId,PersonGroupActivity.this);
             for (String personId: personIdSet) {
                 personIdList.add(personId);
                 personChecked.add(false);
@@ -501,6 +501,7 @@ public class PersonGroupActivity extends ActionBarActivity {
             convertView.setId(position);
 
             String personId = personIdList.get(position);
+
             Set<String> faceIdSet = StorageHelper.getAllFaceIds(personId, PersonGroupActivity.this);
             if (!faceIdSet.isEmpty()) {
                 Iterator<String> it = faceIdSet.iterator();
@@ -512,7 +513,7 @@ public class PersonGroupActivity extends ActionBarActivity {
             }
 
             // set the text of the item
-            String personName = StorageHelper.getPersonName(personId, personGroupId, PersonGroupActivity.this);
+            String personName = personId;
             ((TextView)convertView.findViewById(R.id.text_person)).setText(personName);
 
             // set the checked status of the item

@@ -38,6 +38,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
+import com.microsoft.projectoxford.face.samples.R;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -51,7 +52,9 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -88,7 +91,7 @@ public class StorageHelper {
 
 
 
-    //with parse
+    //with parse add new course
     public static void setGroupName(final String personGroupIdToAdd,  String lectureName, String personGroupName, Context context) {
         final String personGroupName1=personGroupName;
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
@@ -109,7 +112,7 @@ public class StorageHelper {
              ParseObject groupName = new ParseObject("Course");
              groupName.put("CourseName",personGroupName1);
              groupName.put("lectureName", lectureName);
-             groupName.put("studentList", "");
+             groupName.put("studentList", "{}");
              groupName.saveInBackground();
 
 
@@ -158,19 +161,63 @@ public class StorageHelper {
         }
     }
 
-    public static Set<String> getAllPersonIds(String personGroupId, Context context) {
-        SharedPreferences personIdSet =
-                context.getSharedPreferences(personGroupId + "PersonIdSet", Context.MODE_PRIVATE);
-        return personIdSet.getStringSet("PersonIdSet", new HashSet<String>());
+
+
+    //create new student
+    public static void createPerson(String personName,String cv, String personGroupId, Context context){
+
+        ParseObject Student = new ParseObject("Student");
+        Student.put("studentName", personName);
+        Student.put("CV",cv);
+        Student.put("course", personGroupId);
+        Student.saveInBackground();
+        updateCourse(personGroupId,cv,personName,context);
+
+
+
     }
 
-    public static String getPersonName(String personId, String personGroupId, Context context) {
-        SharedPreferences personIdNameMap =
-                context.getSharedPreferences(personGroupId + "PersonIdNameMap", Context.MODE_PRIVATE);
-        return personIdNameMap.getString(personId, "");
+    public static void updateCourse(String course, String cv ,String name,Context context){
+
+        String studentList="";
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("CourseName", course);
+        JSONArray arr;
+        try{
+            ParseObject courseResult=((ParseObject)query.getFirst());
+            studentList=courseResult.getString("studentList");
+            if (!studentList.equals("{}")) {
+                arr = new JSONArray(studentList);
+            }
+            else{
+              arr = new JSONArray();
+            }
+            JSONObject pnObj = new JSONObject();
+
+            pnObj.put("cv", cv );
+            pnObj.put("name", name );
+            arr.put(pnObj);
+            courseResult.put("studentList",arr.toString());
+            courseResult.saveInBackground();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        catch (com.parse.ParseException e){
+
+        }
+
+
     }
 
+
+    //add person with parse
+    public static void setPersonNameWithParse(String personIdToAdd, String personName, String personGroupId, Context context){
+
+
+    }
     public static void setPersonName(String personIdToAdd, String personName, String personGroupId, Context context) {
+
         SharedPreferences personIdNameMap =
                 context.getSharedPreferences(personGroupId + "PersonIdNameMap", Context.MODE_PRIVATE);
 
@@ -178,7 +225,7 @@ public class StorageHelper {
         personIdNameMapEditor.putString(personIdToAdd, personName);
         personIdNameMapEditor.commit();
 
-        Set<String> personIds = getAllPersonIds(personGroupId, context);
+        ArrayList<String> personIds = getAllPersonGroupIdsByUserName(context, personGroupId);
         Set<String> newPersonIds = new HashSet<>();
         for (String personId: personIds) {
             newPersonIds.add(personId);
@@ -200,7 +247,7 @@ public class StorageHelper {
         }
         personIdNameMapEditor.commit();
 
-        Set<String> personIds = getAllPersonIds(personGroupId, context);
+        ArrayList<String> personIds = getAllPersonGroupIdsByUserName(context, personGroupId);
         Set<String> newPersonIds = new HashSet<>();
         for (String personId: personIds) {
             if (!personIdsToDelete.contains(personId)) {
@@ -214,7 +261,66 @@ public class StorageHelper {
         personIdSetEditor.commit();
     }
 
-    public static Set<String> getAllFaceIds(String personId, Context context) {
+/*
+    public static ArrayList<String>getAllFaceName(String personId, Context context){
+
+
+        ArrayList<String> listOfName=new ArrayList<>();
+        ArrayList<ParseObject> results=new ArrayList<>();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("CV", personId);
+
+        try{
+            results =( ArrayList<ParseObject>)query.find();
+        }
+        catch (com.parse.ParseException e){
+
+        }
+
+        for (ParseObject student :results) {
+
+            listOfCourse.add(course.get("CourseName").toString());
+        }
+        return listOfCourse;
+
+    }
+    */
+
+    public static ArrayList<String>getAllStudentByCourse(String course, Context context) {
+
+
+        ArrayList<String> listOfStudent = new ArrayList<>();
+        ParseObject results;
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("CourseName", course);
+        String studentList ;
+        try {
+            results = (ParseObject)query.getFirst();
+
+
+            JSONArray arr = new JSONArray( results.getString("studentList") );
+
+            // ArrayList<String> cvList = new ArrayList<>();
+            for(int i = 0; i < arr.length(); i++){
+                String cv = arr.getJSONObject(i).getString("cv");
+                String name = arr.getJSONObject(i).getString("name");
+                listOfStudent.add(name);
+            }
+
+
+        } catch (com.parse.ParseException e) {
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return listOfStudent;
+    }
+
+        public static Set<String> getAllFaceIds(String personId, Context context) {
         SharedPreferences faceIdSet =
                 context.getSharedPreferences(personId + "FaceIdSet", Context.MODE_PRIVATE);
         return faceIdSet.getStringSet("FaceIdSet", new HashSet<String>());

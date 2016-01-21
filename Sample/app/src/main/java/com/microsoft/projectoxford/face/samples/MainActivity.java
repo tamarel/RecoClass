@@ -55,22 +55,25 @@ public class MainActivity extends ActionBarActivity {
         private EditText passwordField,userNameField;
         private ImageView logo;
         private String usernametxt,passwordtxt,emailtxt;
-
+        private boolean run= false;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-            //Parse initialize
-            Parse.enableLocalDatastore(this);
-            Parse.initialize(this);
-            ParseUser.enableAutomaticUser();
-            ParseACL defaultACL = new ParseACL();
-            defaultACL.setPublicReadAccess(true);
-            ParseACL.setDefaultACL(defaultACL, true);
 
-            ParseUser currentUser = ParseUser.getCurrentUser();
-            currentUser.logOut();
+            if(!run) {
+                //Parse initialize
+                Parse.enableLocalDatastore(this);
+                Parse.initialize(this);
+                ParseUser.enableAutomaticUser();
+                ParseACL defaultACL = new ParseACL();
+                defaultACL.setPublicReadAccess(true);
+                ParseACL.setDefaultACL(defaultACL, true);
 
+                ParseUser currentUser = ParseUser.getCurrentUser();
+                currentUser.logOut();
+            }
+            run = true;
             signButton = (Button)findViewById(R.id.signButton);
             registerNowButton = (Button)findViewById(R.id.registerButton);
             userName = (TextView)findViewById(R.id.userNameLable);
