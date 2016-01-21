@@ -45,6 +45,10 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,7 +64,7 @@ public class StorageHelper {
 
 
 
-        // with parse
+        // with parse get all course by lecture
     public static ArrayList<String> getAllPersonGroupIdsByUserName(Context context,String lectureName) {
         ArrayList<String> listOfCourse=new ArrayList<>();
        ArrayList<ParseObject> listCourse=new ArrayList<>();
@@ -90,22 +94,25 @@ public class StorageHelper {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
         query.whereEqualTo("lectureName", lectureName);
         query.findInBackground(new FindCallback<ParseObject>() {
-                                   @Override
-                                   public void done(List<ParseObject> GroupList, com.parse.ParseException e) {
-                                       if (e == null) {
-                                           for (ParseObject nameCourse : GroupList) {
+            @Override
+            public void done(List<ParseObject> GroupList, com.parse.ParseException e) {
+                if (e == null) {
+                    for (ParseObject nameCourse : GroupList) {
 
-                                               if (personGroupName1.equals(nameCourse.getString("GroupName")))
-                                                   return;
-                                           }
-                                       }
-                                   }
-                               });
+                        if (personGroupName1.equals(nameCourse.getString("CourseName")))
+                            return;
+                    }
+                }
+            }
+        });
 
              ParseObject groupName = new ParseObject("Course");
              groupName.put("CourseName",personGroupName1);
              groupName.put("lectureName", lectureName);
+             groupName.put("studentList", "");
              groupName.saveInBackground();
+
+
 
     }
 
