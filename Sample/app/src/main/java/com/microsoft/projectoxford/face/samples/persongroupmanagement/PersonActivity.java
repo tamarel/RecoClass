@@ -1,4 +1,5 @@
 //
+
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
 //
@@ -35,6 +36,9 @@ package com.microsoft.projectoxford.face.samples.persongroupmanagement;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.hardware.camera2.params.Face;
+import android.media.FaceDetector;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,13 +63,19 @@ import android.widget.TextView;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.CreatePersonResult;
+import com.microsoft.projectoxford.face.contract.FaceRectangle;
 import com.microsoft.projectoxford.face.samples.R;
+import com.microsoft.projectoxford.face.samples.helper.ImageHelper;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
 import com.parse.ParseObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,6 +83,7 @@ import java.util.UUID;
 
 
 public class PersonActivity extends ActionBarActivity {
+    static Intent indata;
     // Background task of adding a person to person group.
     class AddPersonTask extends AsyncTask<String, String, String> {
         // Indicate the next step is to add face in this person, or finish editing this person.
@@ -90,11 +101,7 @@ public class PersonActivity extends ActionBarActivity {
                 publishProgress("Syncing with server to add person...");
                 addLog("Request: Creating Person in person group" + params[0]);
 
-                // Start the request to creating person.
-
-
-
-                return "";
+            return  "";
             } catch (Exception e) {
                 publishProgress(e.getMessage());
                 addLog(e.getMessage());
@@ -341,7 +348,8 @@ public class PersonActivity extends ActionBarActivity {
             textWarning.setText(R.string.person_name_empty_warning_message);
             return;
         }
-        StorageHelper.createPerson(newPersonName,"cv",personGroupId,PersonActivity.this);
+        CreatePersonResult createPersonResult = StorageHelper.createPerson(newPersonName,"cv",personGroupId,PersonActivity.this,getString(R.string.user_provided_description_data));
+
         StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
 
         finish();
@@ -359,9 +367,11 @@ public class PersonActivity extends ActionBarActivity {
         {
             case REQUEST_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
+                    indata=data;
                     Uri uriImagePicked = data.getData();
                     Intent intent = new Intent(this, AddFaceToPersonActivity.class);
                     intent.putExtra("PersonId", personId);
+                    intent.putExtra("PersonName", personId);
                     intent.putExtra("PersonGroupId", personGroupId);
                     intent.putExtra("ImageUriStr", uriImagePicked.toString());
                     startActivity(intent);
@@ -416,7 +426,7 @@ public class PersonActivity extends ActionBarActivity {
             faceIdList = new ArrayList<>();
             faceChecked = new ArrayList<>();
 
-            Set<String> faceIdSet = StorageHelper.getAllFaceIds(personId, PersonActivity.this);
+            ArrayList<String> faceIdSet = StorageHelper.getAllFaceIdsByPerson(personId, PersonActivity.this);
             for (String faceId: faceIdSet) {
                 faceIdList.add(faceId);
                 faceChecked.add(false);
@@ -441,6 +451,14 @@ public class PersonActivity extends ActionBarActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             // set the item view
+         List<Bitmap> faceThumbnails= new ArrayList<>();
+            Uri uriImagePicked = indata.getData();
+            Uri imageUri = Uri.parse(uriImagePicked.toString());
+
+            Bitmap mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
+                    imageUri, getContentResolver());
+
+
             if (convertView == null) {
                 LayoutInflater layoutInflater
                         = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -448,6 +466,25 @@ public class PersonActivity extends ActionBarActivity {
                         R.layout.item_face_with_checkbox, parent, false);
             }
             convertView.setId(position);
+                 try {
+               File file = new File(getApplicationContext().getFilesDir(), personId);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+
+               /*faceThumbnails.add(ImageHelper.generateFaceThumbnail(
+                        mBitmap, (FaceRectangle)(StorageHelper.getAllFaceIdsByPersonRect(personId,getBaseContext()).get(0))));
+                faceThumbnails.get(index)
+                        .compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);*/
+                fileOutputStream.flush();
+                fileOutputStream.close();
+
+                Uri uri = Uri.fromFile(file);
+
+            } catch (IOException e) {
+                setInfo(e.getMessage());
+            }
+
 
             Uri uri = Uri.parse(StorageHelper.getFaceUri(
                     faceIdList.get(position), PersonActivity.this));
