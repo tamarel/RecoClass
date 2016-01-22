@@ -296,8 +296,8 @@ public class PersonGroupListActivity extends ActionBarActivity {
             // set the text of the item
             String personGroupName = personGroupIdList.get(position);
 
-            int personNumberInGroup = StorageHelper.getAllPersonGroupIdsByUserName(
-                    PersonGroupListActivity.this, personGroupIdList.get(position)).size();
+            int personNumberInGroup = StorageHelper.getAllStudentByCourse(personGroupIdList.get(position),
+                    PersonGroupListActivity.this).size();
 
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
                     String.format("%s (Person count: %d)", personGroupName, personNumberInGroup));

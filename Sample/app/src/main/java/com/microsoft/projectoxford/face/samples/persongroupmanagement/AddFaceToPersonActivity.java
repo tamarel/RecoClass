@@ -75,6 +75,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
     // Background task of adding a face to person.
     class AddFaceTask extends AsyncTask<Void, String, Boolean> {
         List<Integer> mFaceIndices;
+
         AddFaceTask(List<Integer> faceIndices) {
             mFaceIndices = faceIndices;
         }
@@ -84,8 +85,8 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
             try{
-                publishProgress("Adding face...");
-                UUID personId = UUID.fromString(mPersonId);
+                publishProgress("Adding face..."+mPersonId);
+
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -94,15 +95,13 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
                 for (Integer index: mFaceIndices) {
                     FaceRectangle faceRect = mFaceGridViewAdapter.faceRectList.get(index);
                     addLog("Request: Adding face to person " + mPersonId);
-                    // Start the request to add face.
-                    AddPersistedFaceResult result = faceServiceClient.addPersonFace(
-                            mPersonGroupId,
-                            personId,
-                            imageInputStream,
+                    // Start the request to add face.User data
+
+                    AddPersistedFaceResult result = StorageHelper.addPersonFace(mPersonGroupId, mPersonId,
+
+                            stream,
                             "User data",
                             faceRect);
-
-                    mFaceGridViewAdapter.faceIdList.set(index, result.persistedFaceId);
                 }
                 return true;
             } catch (Exception e) {
@@ -191,24 +190,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         mProgressDialog.dismiss();
         if (succeed) {
             String faceIds = "";
-            for (Integer index: faceIndices) {
-                String faceId = mFaceGridViewAdapter.faceIdList.get(index).toString();
-                faceIds += faceId + ", ";
-                try {
-                    File file = new File(getApplicationContext().getFilesDir(), faceId);
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
-                    mFaceGridViewAdapter.faceThumbnails.get(index)
-                            .compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
 
-                    Uri uri = Uri.fromFile(file);
-                    StorageHelper.setFaceUri(
-                            faceId, uri.toString(), mPersonId, AddFaceToPersonActivity.this);
-                } catch (IOException e) {
-                    setInfo(e.getMessage());
-                }
-            }
             addLog("Response: Success. Face(s) " + faceIds + "added to person " + mPersonId);
             finish();
         }
@@ -229,6 +211,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
 
             // Set the adapter of the ListView which contains the details of the detected faces.
             mFaceGridViewAdapter = new FaceGridViewAdapter(result);
+
 
             // Show the detailed list of detected faces.
             GridView gridView = (GridView) findViewById(R.id.gridView_faces_to_select);
