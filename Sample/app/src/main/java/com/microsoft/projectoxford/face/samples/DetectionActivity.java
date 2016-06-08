@@ -39,7 +39,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -161,7 +160,7 @@ public class DetectionActivity extends ActionBarActivity {
 
     // Recover the saved state when the activity is recreated.
     @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+    protected void onRestoreInstanceState( Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
         mImageUri = savedInstanceState.getParcelable("ImageUri");

@@ -75,9 +75,10 @@ import java.util.UUID;
 
 
 public class PersonGroupActivity extends ActionBarActivity {
-    // Background task of adding a person group.
+    static String _personId;
+    // Background task of adding a course.
     class AddPersonGroupTask extends AsyncTask<String, String, String> {
-        // Indicate the next step is to add person in this group, or finish editing this group.
+        // Indicate the next step is to add person in this course, or finish editing this course.
         boolean mAddPerson;
 
         AddPersonGroupTask(boolean addPerson) {
@@ -86,14 +87,14 @@ public class PersonGroupActivity extends ActionBarActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            addLog("Request: Creating person group " + params[0]);
+            addLog("Request: Creating course " + params[0]);
 
             // Get an instance of face service client.
             FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
             try{
-                publishProgress("Syncing with server to add person group...");
+                publishProgress("Syncing with server to add course...");
 
-                // Start creating person group in server.
+                // Start creating course in server.
                 faceServiceClient.createPersonGroup(
                         params[0],
                         getString(R.string.user_provided_person_group_name),
@@ -122,14 +123,14 @@ public class PersonGroupActivity extends ActionBarActivity {
             progressDialog.dismiss();
 
             if (result != null) {
-                addLog("Response: Success. Person group " + result + " created");
+                addLog("Response: Success. course " + result + " created");
 
                 personGroupExists = true;
                 GridView gridView = (GridView) findViewById(R.id.gridView_persons);
                 personGridViewAdapter = new PersonGridViewAdapter();
                 gridView.setAdapter(personGridViewAdapter);
 
-                setInfo("Success. Group " + result + " created");
+                setInfo("Success. course " + result + " created");
 
                 if (mAddPerson) {
                     addPerson();
@@ -144,12 +145,12 @@ public class PersonGroupActivity extends ActionBarActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            addLog("Request: Training group " + params[0]);
+            addLog("Request: Training course " + params[0]);
 
             // Get an instance of face service client.
             FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
             try{
-                publishProgress("Training person group...");
+                publishProgress("Training course...");
 
                 faceServiceClient.trainPersonGroup(params[0]);
                 return params[0];
@@ -354,13 +355,14 @@ public class PersonGroupActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!personGridViewAdapter.longPressed) {
                     String personId = personGridViewAdapter.personIdList.get(position);
-                    String personName = personId;
+                    String personName = StorageHelper.getPersonName(
+                            personId, personGroupId, PersonGroupActivity.this);
 
                     Intent intent = new Intent(PersonGroupActivity.this, PersonActivity.class);
                     intent.putExtra("AddNewPerson", false);
-                    intent.putExtra("PersonName", personName);
-                    intent.putExtra("PersonId", personId);
-                    intent.putExtra("PersonGroupId", ParseUser.getCurrentUser().get("username").toString());
+                    intent.putExtra("PersonName", personId);
+                    intent.putExtra("PersonId", StorageHelper.getPersonId(personId,"cv"));
+                    intent.putExtra("PersonGroupId", personGroupId);
                     startActivity(intent);
                 }
             }
@@ -411,14 +413,13 @@ public class PersonGroupActivity extends ActionBarActivity {
         EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
         String newPersonGroupName = editTextPersonGroupName.getText().toString();
         if (newPersonGroupName.equals("")) {
-            setInfo("Person group name could not be empty");
+            setInfo("Course name could not be empty");
             return;
         }
 
-
-
-        StorageHelper.setGroupName(personGroupId,  ParseUser.getCurrentUser().get("username").toString(),newPersonGroupName,PersonGroupActivity.this);
-        if (personGroupExists) {
+       // StorageHelper.setPersonGroupName(personGroupId, newPersonGroupName, PersonGroupActivity.this);
+        StorageHelper.setCourseName(personGroupId, newPersonGroupName, newPersonGroupName, PersonGroupActivity.this);
+        if (trainPersonGroup) {
             new TrainPersonGroupTask().execute(personGroupId);
         } else {
             finish();
@@ -502,10 +503,10 @@ public class PersonGroupActivity extends ActionBarActivity {
 
             String personId = personIdList.get(position);
 
-            Set<String> faceIdSet = StorageHelper.getAllFaceIds(personId, PersonGroupActivity.this);
+            Set<String> faceIdSet = StorageHelper.getAllFaceIdsByStudentName(personId, PersonGroupActivity.this);
             if (!faceIdSet.isEmpty()) {
                 Iterator<String> it = faceIdSet.iterator();
-                Uri uri = Uri.parse(StorageHelper.getFaceUri(it.next(), PersonGroupActivity.this));
+                Uri uri = Uri.parse(StorageHelper.getFaceUriFromParse(it.next(), StorageHelper.getPersonId(personId,"cv") , PersonGroupActivity.this));
                 ((ImageView)convertView.findViewById(R.id.image_person)).setImageURI(uri);
             } else {
                 Drawable drawable = getResources().getDrawable(R.drawable.logo);

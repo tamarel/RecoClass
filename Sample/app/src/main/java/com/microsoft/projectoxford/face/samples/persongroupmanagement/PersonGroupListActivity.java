@@ -201,7 +201,8 @@ public class PersonGroupListActivity extends ActionBarActivity {
                 if (!personGroupsListAdapter.longPressed) {
 
                     String personGroupId = personGroupsListAdapter.personGroupIdList.get(position);
-                    String personGroupName =personGroupsListAdapter.personGroupIdList.get(position);
+                    String personGroupName = StorageHelper.getCourseName(
+                            personGroupId, PersonGroupListActivity.this);
 
                     Intent intent = new Intent(PersonGroupListActivity.this, PersonGroupActivity.class);
                     intent.putExtra("AddNewPersonGroup", false);
@@ -259,11 +260,12 @@ public class PersonGroupListActivity extends ActionBarActivity {
             personGroupIdList = new ArrayList<>();
             personGroupChecked = new ArrayList<>();
             //with parse
-            ArrayList<String> personGroupIds1 = StorageHelper.getAllPersonGroupIdsByUserName(PersonGroupListActivity.this, ParseUser.getCurrentUser().get("username").toString());
+            ArrayList<String> personGroupIds1 = StorageHelper.getAllCourseIdsByUserName(PersonGroupListActivity.this, ParseUser.getCurrentUser().get("username").toString());
 
 
             for (String personGroupId: personGroupIds1) {
                 personGroupIdList.add(personGroupId);
+
                 personGroupChecked.add(false);
             }
 
@@ -294,13 +296,12 @@ public class PersonGroupListActivity extends ActionBarActivity {
             convertView.setId(position);
 
             // set the text of the item
-            String personGroupName = personGroupIdList.get(position);
-
-            int personNumberInGroup = StorageHelper.getAllStudentByCourse(personGroupIdList.get(position),
-                    PersonGroupListActivity.this).size();
-
+            String courseName = StorageHelper.getCourseName(
+                    personGroupIdList.get(position), PersonGroupListActivity.this);
+            int personNumberInGroup = StorageHelper.getAllStudentByCourse(
+                    personGroupIdList.get(position), PersonGroupListActivity.this).size();
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
-                    String.format("%s (Person count: %d)", personGroupName, personNumberInGroup));
+                    String.format("%s (Person count: %d)", courseName, personNumberInGroup));
 
             // set the checked status of the item
             CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.checkbox_person_group);

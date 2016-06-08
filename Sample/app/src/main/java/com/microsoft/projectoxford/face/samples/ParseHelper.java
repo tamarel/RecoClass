@@ -10,12 +10,13 @@ import com.parse.ParseUser;
 import android.app.Application;
 public class ParseHelper extends Application  {
 
-        public void ParseHelper(){
+        @Override
+        public void onCreate() {
+                super.onCreate();
 
         Parse.enableLocalDatastore(this);
 
         Parse.initialize(this);
-
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
 

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+>
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+
+        android:gravity="center_vertical"
+
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/explain"
+        android:textColor="#3366d1"
+        android:layout_gravity="center"
+        android:autoText="false"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:layout_marginTop="5dp" />
+
+
+    <FrameLayout
+        android:id="@android:id/tabcontent"
+        android:layout_width="fill_parent"
+        android:layout_height="375dp">
+        <ListView
+            android:id="@+id/list"
+            android:layout_weight="6"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" >
+        </ListView>
+
+    </FrameLayout>
+
+<RelativeLayout
+    android:layout_width="356dp"
+    android:layout_height="84dp"
+    android:layout_gravity="center_horizontal">
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/manage_course"
+        android:id="@+id/manageCourse"
+
+        android:layout_weight="0.5"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/addButton"
+        android:layout_toLeftOf="@+id/addButton" />
+
+    <ImageButton
+        android:layout_width="65dp"
+        android:layout_height="60dp"
+        android:layout_weight="0.5"
+
+        android:id="@+id/addButton"
+        android:background="@drawable/add"
+        android:layout_gravity="right"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
+
+</LinearLayout>

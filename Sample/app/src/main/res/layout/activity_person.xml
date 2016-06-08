@@ -14,41 +14,53 @@
         android:id="@+id/person_name_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="@dimen/view_margin">
+        android:layout_alignParentTop="true">
 
         <TextView
             android:id="@+id/person_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/person_name"
+            android:layout_alignBaseline="@+id/edit_person_name"
+            android:layout_alignBottom="@+id/edit_person_id"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="@string/person_name" />
+            android:layout_alignParentStart="true" />
 
         <EditText
             android:id="@+id/edit_person_name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/person_name"
-            android:layout_toEndOf="@+id/person_name"
             android:singleLine="true"
             android:maxLength="30"
-            android:hint="@string/type_in_person_name_tip" />
+            android:hint="@string/type_in_person_name_tip"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
+            android:id="@+id/person_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="person id:"
+            android:layout_alignBaseline="@+id/edit_person_id"
+
+            android:layout_below="@id/edit_person_name"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <EditText
+            android:id="@+id/edit_person_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:maxLength="30"
+            android:hint="id"
+
+            android:layout_below="@+id/edit_person_name"
+            android:layout_alignLeft="@+id/edit_person_name"
+            android:layout_alignStart="@+id/edit_person_name" />
 
     </RelativeLayout>
-
-    <GridView
-        android:id="@+id/gridView_faces"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/person_name_view"
-        android:layout_above="@+id/person_tip"
-        android:numColumns="3"
-        android:verticalSpacing="@dimen/view_margin"
-        android:horizontalSpacing="@dimen/view_margin"
-        android:layout_marginBottom="@dimen/view_margin"
-        android:gravity="center" />
 
     <TextView
         android:id="@+id/person_tip"
@@ -96,5 +108,17 @@
             style="@style/ButtonStyle" />
 
     </LinearLayout>
+
+    <GridView
+        android:id="@+id/gridView_faces"
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:numColumns="3"
+        android:verticalSpacing="@dimen/view_margin"
+        android:horizontalSpacing="@dimen/view_margin"
+        android:gravity="center"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

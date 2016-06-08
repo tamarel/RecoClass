@@ -34,6 +34,8 @@ package com.microsoft.projectoxford.face.samples.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,9 +53,12 @@ import com.microsoft.projectoxford.face.rest.ClientException;
 import com.microsoft.projectoxford.face.rest.WebServiceRequest;
 import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.AddFaceToPersonActivity;
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.CourseProperties;
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.StudentProperties;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.Parse;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -67,10 +72,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -81,56 +89,198 @@ import java.util.UUID;
 public class StorageHelper {
 
 
-
-
-        // with parse get all course by lecture
-    public static ArrayList<String> getAllPersonGroupIdsByUserName(Context context,String lectureName) {
-        ArrayList<String> listOfCourse=new ArrayList<>();
-       ArrayList<ParseObject> listCourse=new ArrayList<>();
-
+    //Tamar's function - get course name by id.
+    public static String getCourseName(String personGroupId, Context context){
+        ArrayList<ParseObject> listCourse=new ArrayList<>();
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
-        query.whereEqualTo("lectureName", lectureName);
+
+        query.whereEqualTo("CourseId", personGroupId);
+
         try{
             listCourse =( ArrayList<ParseObject>)(query.find());
         }
         catch (com.parse.ParseException e){
-
         }
 
-    for (ParseObject course :listCourse) {
-
-        listOfCourse.add(course.get("CourseName").toString());
+        for (ParseObject course :listCourse) {
+            return course.get("CourseName").toString();
+        }
+        return "";
     }
+    // Tamar's function - get id by course Name
+    public static String getCourseId(String courseName,String lectureName){
+        String courseId = "";
+        ParseObject result;
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("lectureName", lectureName);
+        query.whereEqualTo("CourseName", courseName);
+        try{
+            result = (ParseObject) (query.getFirst());
+            courseId =  result.get("CourseId").toString();
+        }
+
+        catch (com.parse.ParseException e){
+        }
+
+        return courseId;
+    }
+
+    //Tamar's function - check if student exist in course
+    public static String checIfStudenExistInCourse(Context context, String courseId,String id) {
+
+        String studentList = "";
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+        query.whereEqualTo("CourseId", courseId);
+        JSONArray arr;
+        try {
+            ParseObject courseResult = ((ParseObject) query.getFirst());
+            studentList = courseResult.getString("studentList");
+            if (!studentList.equals("{}")) {
+                arr = new JSONArray(studentList);
+            } else {
+                arr = new JSONArray();
+            }
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject student = arr.getJSONObject(i);
+                String cv = student.getString("cv");
+                if (cv.equals(id))
+                    return student.getString("name");
+
+            }
+            return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (com.parse.ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+
+
+    // Tamar's function - get all course by lecture
+    public static ArrayList<String> getAllCourseIdsByUserName(Context context,String lectureName) {
+
+        ArrayList<String> listOfCourse=new ArrayList<>();
+        ArrayList<ParseObject> listCourse=new ArrayList<>();
+        try{
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
+            query.whereEqualTo("lectureName", lectureName);
+            listCourse =( ArrayList<ParseObject>)(query.find());
+        }
+        catch (com.parse.ParseException e){
+        }
+
+        for (ParseObject course :listCourse) {
+            listOfCourse.add(course.get("CourseId").toString());
+        }
         return listOfCourse;
     }
 
+    public static ArrayList<CourseProperties> getAllCourseNameByUserName(Context context,String lectureName) {
+
+        ArrayList<String> listOfCourse=getAllCourseIdsByUserName(context,lectureName);
+        ArrayList<CourseProperties> listOfCourses= new ArrayList<>();
+
+        for (String course: listOfCourse) {
+            listOfCourses.add(new CourseProperties("10058",StorageHelper.getCourseName(course,context)));
+        }
+        return listOfCourses;
+    }
 
 
 
-    //with parse add new course
-    public static void setGroupName(final String personGroupIdToAdd,  String lectureName, String personGroupName, Context context) {
-        final String personGroupName1=personGroupName;
+    public static Set<String> getAllPersonGroupIds(Context context) {
+        SharedPreferences personGroupIdSet =
+                context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
+        return personGroupIdSet.getStringSet("PersonGroupIdSet", new HashSet<String>());
+    }
+
+    public static void setPersonGroupName(String personGroupIdToAdd, String personGroupName, Context context) {
+        SharedPreferences personGroupIdNameMap =
+                context.getSharedPreferences("PersonGroupIdNameMap", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor personGroupIdNameMapEditor = personGroupIdNameMap.edit();
+        personGroupIdNameMapEditor.putString(personGroupIdToAdd, personGroupName);
+        personGroupIdNameMapEditor.commit();
+
+        Set<String> personGroupIds = getAllPersonGroupIds(context);
+        Set<String> newPersonGroupIds = new HashSet<>();
+        for (String personGroupId: personGroupIds) {
+            newPersonGroupIds.add(personGroupId);
+        }
+        newPersonGroupIds.add(personGroupIdToAdd);
+        SharedPreferences personGroupIdSet =
+                context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
+        SharedPreferences.Editor personGroupIdSetEditor = personGroupIdSet.edit();
+        personGroupIdSetEditor.putStringSet("PersonGroupIdSet", newPersonGroupIds);
+        personGroupIdSetEditor.commit();
+    }
+
+    public static String getPersonName(String personId, String personGroupId, Context context) {
+
+        ArrayList<String> listOfStudent = new ArrayList<>();
+        ParseObject result;
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("personId", personId);
+        String studentName="" ;
+        try {
+            result = (ParseObject) (query.getFirst());
+            studentName =  result.get("studentName").toString();
+
+        } catch (com.parse.ParseException e) {
+            e.printStackTrace();
+        }
+       return studentName;
+
+    }
+        public static Set<String> getAllPersonIds(String personGroupId, Context context) {
+        SharedPreferences personIdSet =
+                context.getSharedPreferences(personGroupId + "PersonIdSet", Context.MODE_PRIVATE);
+        return personIdSet.getStringSet("PersonIdSet", new HashSet<String>());
+    }
+
+    //Tamar's function - set course name
+    public static void setCourseName(final String personGroupIdToAdd,  String lectureName, String courseName, Context context) {
+
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
-        query.whereEqualTo("lectureName", lectureName);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> GroupList, com.parse.ParseException e) {
-                if (e == null) {
-                    for (ParseObject nameCourse : GroupList) {
+        query.whereEqualTo("CourseId", personGroupIdToAdd);
 
-                        if (personGroupName1.equals(nameCourse.getString("CourseName")))
-                            return;
+
+        try {
+            if (query.count()==0) {
+
+
+                final String personGroupName1=courseName;
+                query = ParseQuery.getQuery("Course");
+                query.whereEqualTo("lectureName", lectureName);
+                query.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> GroupList, com.parse.ParseException e) {
+                        if (e == null) {
+                            for (ParseObject nameCourse : GroupList) {
+
+                                if (personGroupName1.equals(nameCourse.getString("CourseName")))
+                                    return;
+                            }
+                        }
                     }
+                });
+
+                     ParseObject groupName = new ParseObject("Course");
+                     groupName.put("CourseName",courseName);
+                     groupName.put("CourseId",personGroupIdToAdd);
+                     groupName.put("lectureName", ParseUser.getCurrentUser().get("username"));
+                     groupName.put("studentList", "{}");
+                     groupName.saveInBackground();
                 }
-            }
-        });
-
-             ParseObject groupName = new ParseObject("Course");
-             groupName.put("CourseName",personGroupName1);
-             groupName.put("lectureName", lectureName);
-             groupName.put("studentList", "{}");
-             groupName.saveInBackground();
-
+        } catch (com.parse.ParseException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -164,7 +314,7 @@ public class StorageHelper {
         }
 
 
-        ArrayList<String> personGroupIds = getAllPersonGroupIdsByUserName(context, ParseUser.getCurrentUser().get("username")
+        ArrayList<String> personGroupIds = getAllCourseIdsByUserName(context, ParseUser.getCurrentUser().get("username")
                 .toString());
         ArrayList<String> newPersonGroupIds = new ArrayList<>();
 
@@ -178,48 +328,52 @@ public class StorageHelper {
     }
 
 
+    public static String getPersonId(String StudentName, String CV){
 
-    //create new student
-    public static CreatePersonResult createPerson(String personName,String cv, String personGroupId, Context context,String userData){
 
-        WebServiceRequest mRestCall = new WebServiceRequest("1f858fa69d634871bc1aac03e4783ec7");
-        String mServiceHost = "https://api.projectoxford.ai/face/v1.0";
-        Gson mGson = (new GsonBuilder()).setDateFormat("M/d/yyyy h:m:s a").create();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("studentName", StudentName);
+        //need to add check on cv
+        String StudentId="";
+        try{
+            ParseObject courseResult=((ParseObject)query.getFirst());
+            StudentId=courseResult.getString("personId");
+          }
+        catch (com.parse.ParseException e){
 
-        ParseObject Student = new ParseObject("Student");
-        Student.put("studentName", personName);
-        Student.put("CV",cv);
-        Student.put("faces", "{}");
-        Student.saveInBackground();
-        updateCourse(personGroupId,cv,personName,context);
-
-        /*
-        HashMap params = new HashMap();
-        String uri = String.format("%s/%s/%s/%s", new Object[]{mServiceHost, "persongroups", personGroupId, "persons"});
-        params.put("name", personName);
-        if(userData != null) {
-            params.put("userData", userData);
         }
+        return StudentId;
+    }
+    //Tamar's function - create a new student
+    public static CreatePersonResult createPerson(String personName,String cv,String personId, String personGroupId, Context context,String userData) {
 
-        String json = null;
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("personId", personId);
+
         try {
-            json = (String)mRestCall.request(uri, RequestMethod.POST, params, (String)null);
-            return (CreatePersonResult)mGson.fromJson(json, CreatePersonResult.class);
+            if (query.count()==0) {
 
-        } catch (ClientException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+                ParseObject Student = new ParseObject("Student");
+                Student.put("studentName", personName);
+                Student.put("CV", cv);
+                Student.put("faces", "{}");
+                Student.put("personId", personId);
+                Student.saveInBackground();
+                updateCourse(personGroupId, cv, personName, context);
+
+                return null;
+            }
+        } catch (com.parse.ParseException e) {
             e.printStackTrace();
         }
-         */
         return null;
     }
 
-    public static void updateCourse(String course, String cv ,String name,Context context){
+    public static void updateCourse(String courseId, String cv ,String name,Context context){
 
         String studentList="";
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
-        query.whereEqualTo("CourseName", course);
+        query.whereEqualTo("CourseId", courseId);
         JSONArray arr;
         try{
             ParseObject courseResult=((ParseObject)query.getFirst());
@@ -263,7 +417,7 @@ public class StorageHelper {
         personIdNameMapEditor.putString(personIdToAdd, personName);
         personIdNameMapEditor.commit();
 
-        ArrayList<String> personIds = getAllPersonGroupIdsByUserName(context, personGroupId);
+        ArrayList<String> personIds = getAllCourseIdsByUserName(context, personGroupId);
         Set<String> newPersonIds = new HashSet<>();
         for (String personId: personIds) {
             newPersonIds.add(personId);
@@ -285,7 +439,7 @@ public class StorageHelper {
         }
         personIdNameMapEditor.commit();
 
-        ArrayList<String> personIds = getAllPersonGroupIdsByUserName(context, personGroupId);
+        ArrayList<String> personIds = getAllCourseIdsByUserName(context, personGroupId);
         Set<String> newPersonIds = new HashSet<>();
         for (String personId: personIds) {
             if (!personIdsToDelete.contains(personId)) {
@@ -325,14 +479,15 @@ public class StorageHelper {
     }
     */
 
-    public static ArrayList<String>getAllStudentByCourse(String course, Context context) {
+    //Tamar's function - get all students of course.
+    public static ArrayList<String>getAllStudentByCourse(String courseId, Context context) {
 
 
         ArrayList<String> listOfStudent = new ArrayList<>();
         ParseObject results;
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Course");
-        query.whereEqualTo("CourseName", course);
+        query.whereEqualTo("CourseId", courseId);
         String studentList ;
         try {
             results = (ParseObject)(query.getFirst());
@@ -349,7 +504,7 @@ public class StorageHelper {
 
 
         } catch (com.parse.ParseException e) {
-
+            e.printStackTrace();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -387,13 +542,43 @@ public class StorageHelper {
 
     }
 
+    public static Set<String> getAllFaceIdsByStudentName(String personName, Context context) {
+        Set<String> listOfFace = new HashSet<>();
 
-        public static ArrayList<String> getAllFaceIdsByPerson(String personId, Context context){
+        ParseObject result;
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("studentName", personName);
 
-            ArrayList<String> listOfFace = new ArrayList<>();
+        try{
+            result =(ParseObject)query.getFirst();
+
+            JSONArray arr = new JSONArray(result.getString("faces"));
+
+            // ArrayList<String> cvList = new ArrayList<>();
+            for (int i = 0; i < arr.length(); i++) {
+                String face = arr.getJSONObject(i).getString("faceId");
+
+                listOfFace.add(face);
+            }
+        } catch (JSONException e1) {
+            e1.printStackTrace();
+        }
+
+        catch (com.parse.ParseException e) {
+
+        }
+        return listOfFace;
+
+    }
+
+    //tamar's function
+        public static Set<String> getAllFaceIdsByStudent(String personId, Context context){
+
+            Set<String> listOfFace = new HashSet<>();
+
             ParseObject result;
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
-            query.whereEqualTo("studentName", personId);
+            query.whereEqualTo("personId", personId);
 
             try{
                 result =(ParseObject)query.getFirst();
@@ -402,7 +587,7 @@ public class StorageHelper {
 
               // ArrayList<String> cvList = new ArrayList<>();
               for (int i = 0; i < arr.length(); i++) {
-                  String face = arr.getJSONObject(i).getString("face");
+                  String face = arr.getJSONObject(i).getString("faceId");
 
                   listOfFace.add(face);
               }
@@ -416,66 +601,131 @@ public class StorageHelper {
         return listOfFace;
 
         }
-        public static Set<String> getAllFaceIds(String personId, Context context) {
+       /* public static Set<String> getAllFaceIds(String personId, Context context) {
 
         SharedPreferences faceIdSet =
                 context.getSharedPreferences(personId + "FaceIdSet", Context.MODE_PRIVATE);
         return faceIdSet.getStringSet("FaceIdSet", new HashSet<String>());
     }
-
-    public static String getFaceUri(String faceId, Context context) {
-        SharedPreferences faceIdUriMap =
-                context.getSharedPreferences("FaceIdUriMap", Context.MODE_PRIVATE);
-        return faceIdUriMap.getString(faceId, "");
-    }
+*/
 
 
+    public static String getFaceUriFromParse(String faceId,String StudentId, Context context) {
 
-    // with parse
-    public static void setFaceUriOnParse(String faceIdToAdd, String faceUri, String personId, Context context) {
-
-
-    }
-
-    public static AddPersistedFaceResult addPersonFace(String mPersonGroupId,String personId,
-                                                       ByteArrayOutputStream url, String userData, FaceRectangle targetFace) {
-        WebServiceRequest mRestCall = new WebServiceRequest("1f858fa69d634871bc1aac03e4783ec7");
-         String mServiceHost = "https://api.projectoxford.ai/face/v1.0";
-        Gson mGson = (new GsonBuilder()).setDateFormat("M/d/yyyy h:m:s a").create();
-
-        HashMap params = new HashMap();
-        String path = String.format("%s/%s/%s/%s/%s/%s", new Object[]{mServiceHost,"persongroups", mPersonGroupId, "persons", personId, "persistedfaces"});
-        if (userData != null && userData.length() > 0) {
-            params.put("userData", userData);
-        }
-
-        String uri;
-        if (targetFace != null) {
-            uri = String.format("%1d,%2d,%3d,%4d", new Object[]{Integer.valueOf(targetFace.left), Integer.valueOf(targetFace.top), Integer.valueOf(targetFace.width), Integer.valueOf(targetFace.height)});
-            params.put("targetFace", uri);
-        }
-
-        uri = WebServiceRequest.getUrl(path, params);
-        params.clear();
-        params.put("url", url);
-
-            String json = "";
-
-        String studentList = "";
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
-        query.whereEqualTo("studentName", personId);
+        query.whereEqualTo("personId", StudentId);
+        //need to add check on cv
+        String facesUri="";
+        ParseObject results;
+
+        try{
+
+            results = (ParseObject)(query.getFirst());
+            JSONArray arr = new JSONArray(results.getString("faces") );
+
+            // ArrayList<String> cvList = new ArrayList<>();
+            for(int i = 0; i < arr.length(); i++) {
+                String id= arr.getJSONObject(i).getString("faceId");
+                if (faceId.equals(id)) {
+                    facesUri=arr.getJSONObject(i).getString("faceUri");
+                    return (arr.getJSONObject(i).getString("faceUri"));
+                }
+            }
+        }
+        catch (com.parse.ParseException e){
+
+        }
+        catch (JSONException e){
+
+        }
+        return facesUri;
+    }
+
+    public static ArrayList getAllListAttendance(String lectureName, String course, String code )
+    {
+        ArrayList<ParseObject> lisetOfAttendace = new ArrayList();
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("List");
+        query.whereEqualTo("LectureName", lectureName);
+        query.whereEqualTo("Course", course);
+        query.whereEqualTo("Code", code);
         JSONArray arr;
+        String studentList="";
         try {
+            lisetOfAttendace =( ArrayList<ParseObject>)(query.find());
+
+        }
+        catch (com.parse.ParseException e){
+            e.printStackTrace();
+        }
+        ArrayList<String> listDates = new ArrayList<>() ;
+        for (ParseObject date : lisetOfAttendace) {
+            Object s = date.get("Date");
+            if (s!=null) {
+                listDates.add(date.get("Date").toString());
+            }
+        }
+
+        return listDates;
+    }
+
+    public static void saveList(String lectureName, String course, String code, List<StudentProperties> studentList, String date){
+
+
+        ParseObject list = new ParseObject("List");
+        list.put("LectureName", lectureName);
+        list.put("Course", course);
+        list.put("Code", code);
+        list.put("Date",date);
+        JSONArray arr = new JSONArray();
+        try{
+
+        for (StudentProperties s : studentList ) {
+            JSONObject pnObj = new JSONObject();
+
+            pnObj.put("cv", s.getId() );
+            pnObj.put("name", s.getName() );
+            arr.put(pnObj);
+
+        }
+        list.put("List",arr);
+        list.saveInBackground();
+
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+     }
+    }
+
+
+    //Tamar's function - set face uri per student
+    public static void saveFaceUri(String faceIdToAdd, String faceUri,String cv,String personId,String courseId ,String studentName,Context context){
+
+        Set<String> faceIds = getAllFaceIdsByStudent(personId, context);
+        Set<String> newFaceIds = new HashSet<>();
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Student");
+        query.whereEqualTo("personId", personId);
+        JSONArray arr;
+        String studentList="";
+        try {
+            if (query.count()==0 )
+            {
+                createPerson(studentName,cv,personId,courseId,context,ParseUser.getCurrentUser().get("username").toString() );
+                query = ParseQuery.getQuery("Student");
+                query.whereEqualTo("personId", personId);
+            }
             ParseObject courseResult = ((ParseObject) query.getFirst());
             studentList = courseResult.getString("faces");
+
             if (!studentList.equals("{}")) {
                 arr = new JSONArray(studentList);
             } else {
                 arr = new JSONArray();
             }
             JSONObject pnObj = new JSONObject();
-            pnObj.put("face", url);
-            pnObj.put("rect", targetFace);
+            pnObj.put("faceId", faceIdToAdd);
+            pnObj.put("faceUri", faceUri);
 
             arr.put(pnObj);
             courseResult.put("faces", arr.toString());
@@ -486,14 +736,8 @@ public class StorageHelper {
         } catch (com.parse.ParseException e) {
 
         }
-        return (AddPersistedFaceResult) mGson.fromJson(json, AddPersistedFaceResult.class);
 
     }
-
-
-
-
-
     public static void setFaceUri(String faceIdToAdd, String faceUri, String personId, Context context) {
         SharedPreferences faceIdUriMap =
                 context.getSharedPreferences("FaceIdUriMap", Context.MODE_PRIVATE);
@@ -502,7 +746,7 @@ public class StorageHelper {
         faceIdUriMapEditor.putString(faceIdToAdd, faceUri);
         faceIdUriMapEditor.commit();
 
-        Set<String> faceIds = getAllFaceIds(personId, context);
+        Set<String> faceIds = getAllFaceIdsByStudent(personId, context);
         Set<String> newFaceIds = new HashSet<>();
         for (String faceId: faceIds) {
             newFaceIds.add(faceId);
@@ -516,7 +760,7 @@ public class StorageHelper {
     }
 
     public static void deleteFaces(List<String> faceIdsToDelete, String personId, Context context) {
-        Set<String> faceIds = getAllFaceIds(personId, context);
+        Set<String> faceIds = getAllFaceIdsByStudent(personId, context);
         Set<String> newFaceIds = new HashSet<>();
         for (String faceId: faceIds) {
             if (!faceIdsToDelete.contains(faceId)) {

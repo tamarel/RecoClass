@@ -85,8 +85,8 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
             try{
-                publishProgress("Adding face..."+mPersonId);
-
+                publishProgress("Adding face...");
+                UUID personId = UUID.fromString(mPersonId);
 
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -95,13 +95,16 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
                 for (Integer index: mFaceIndices) {
                     FaceRectangle faceRect = mFaceGridViewAdapter.faceRectList.get(index);
                     addLog("Request: Adding face to person " + mPersonId);
-                    // Start the request to add face.User data
-
-                    AddPersistedFaceResult result = StorageHelper.addPersonFace(mPersonGroupId, mPersonId,
-
-                            stream,
+                    // Start the request to add face.
+                    AddPersistedFaceResult result = faceServiceClient.addPersonFace(
+                            mPersonGroupId,
+                            personId,
+                            imageInputStream,
                             "User data",
                             faceRect);
+
+
+                    mFaceGridViewAdapter.faceIdList.set(index, result.persistedFaceId);
                 }
                 return true;
             } catch (Exception e) {
@@ -190,7 +193,25 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         mProgressDialog.dismiss();
         if (succeed) {
             String faceIds = "";
+            for (Integer index: faceIndices) {
+                String faceId = mFaceGridViewAdapter.faceIdList.get(index).toString();
+                faceIds += faceId + ", ";
+                try {
+                    File file = new File(getApplicationContext().getFilesDir(), faceId);
+                    FileOutputStream fileOutputStream = new FileOutputStream(file);
+                    mFaceGridViewAdapter.faceThumbnails.get(index)
+                            .compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
 
+                    Uri uri = Uri.fromFile(file);
+                   StorageHelper.setFaceUri(
+                          faceId, uri.toString(), mPersonId, AddFaceToPersonActivity.this);
+                    StorageHelper.saveFaceUri(faceId,uri.toString(),idStudent,mPersonId,mPersonGroupId,mPersonName,AddFaceToPersonActivity.this);
+                } catch (IOException e) {
+                    setInfo(e.getMessage());
+                }
+            }
             addLog("Response: Success. Face(s) " + faceIds + "added to person " + mPersonId);
             finish();
         }
@@ -221,7 +242,9 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
 
     String mPersonGroupId;
     String mPersonId;
+    String idStudent;
     String mImageUriStr;
+    String mPersonName;
     Bitmap mBitmap;
     FaceGridViewAdapter mFaceGridViewAdapter;
 
@@ -237,7 +260,9 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         if (bundle != null) {
             mPersonId = bundle.getString("PersonId");
             mPersonGroupId = bundle.getString("PersonGroupId");
+            mPersonName = bundle.getString("PersonName");
             mImageUriStr = bundle.getString("ImageUriStr");
+            idStudent = bundle.getString("PersonIdNumber");
         }
 
         mProgressDialog = new ProgressDialog(this);
@@ -249,6 +274,8 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         super.onSaveInstanceState(outState);
 
         outState.putString("PersonId", mPersonId);
+        outState.putString("PersonIdNumber", idStudent);
+
         outState.putString("PersonGroupId", mPersonGroupId);
         outState.putString("ImageUriStr", mImageUriStr);
     }
@@ -258,6 +285,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         super.onRestoreInstanceState(savedInstanceState);
 
         mPersonId = savedInstanceState.getString("PersonId");
+        idStudent = savedInstanceState.getString("PersonIdNumber");
         mPersonGroupId = savedInstanceState.getString("PersonGroupId");
         mImageUriStr = savedInstanceState.getString("ImageUriStr");
     }

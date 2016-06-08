@@ -32,6 +32,7 @@
 //
 package com.microsoft.projectoxford.face.samples;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -40,15 +41,22 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,6 +70,7 @@ import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
 import com.microsoft.projectoxford.face.samples.log.IdentificationLogActivity;
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity;
 import com.parse.ParseUser;
 
@@ -69,22 +78,29 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 
-public class IdentificationActivity extends ActionBarActivity {
-
-    // Background task of face identification.
+public class IdentificationActivity extends ActionBarActivity  {
+    View _convertView;
+    public String mPersonGroupId;
+     private boolean mSucceed = true;
+    ListView listView ;
+    public ViewHolder holder;
+    public   ArrayList<String> names;
+    public int len;
+    public String courseName;
     private class IdentificationTask extends AsyncTask<UUID, String, IdentifyResult[]> {
-        private boolean mSucceed = true;
-        String mPersonGroupId;
+
         IdentificationTask(String personGroupId) {
-            this.mPersonGroupId = personGroupId;
+            mPersonGroupId = personGroupId;
         }
 
         @Override
@@ -98,11 +114,12 @@ public class IdentificationActivity extends ActionBarActivity {
 
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = SampleApp.getFaceServiceClient();
+
             try{
                 publishProgress("Getting person group status...");
 
                 TrainingStatus trainingStatus = faceServiceClient.getPersonGroupTrainingStatus(
-                        this.mPersonGroupId);     /* personGroupId */
+                        mPersonGroupId);     /* personGroupId */
 
                 if (trainingStatus.status != TrainingStatus.Status.Succeeded) {
                     publishProgress("Person group training status is " + trainingStatus.status);
@@ -114,7 +131,7 @@ public class IdentificationActivity extends ActionBarActivity {
 
                 // Start identification.
                 return faceServiceClient.identity(
-                        this.mPersonGroupId,   /* personGroupId */
+                        mPersonGroupId,   /* personGroupId */
                         params,                  /* faceIds */
                         1);                      /* maxNumOfCandidatesReturned */
             }  catch (Exception e) {
@@ -140,38 +157,46 @@ public class IdentificationActivity extends ActionBarActivity {
         protected void onPostExecute(IdentifyResult[] result) {
             // Show the result on screen when detection is done.
             setUiAfterIdentification(result, mSucceed);
+
         }
     }
 
-    String mPersonGroupId;
+
 
     boolean detected;
 
     FaceListAdapter mFaceListAdapter;
 
-    PersonGroupListAdapter mPersonGroupListAdapter;
+    //PersonGroupListAdapter mPersonGroupListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_identification);
-
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            mPersonGroupId  = bundle.getString("PersonGroupId");
+            courseName  = bundle.getString("PersonGroupName");
+        }
+        listView= (ListView) findViewById(R.id.list_identified_faces);
         detected = false;
-
+        Button viewLogButton =(Button)findViewById(R.id.view_log);
+        viewLogButton.setText("view log");
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getString(R.string.progress_dialog_title));
 
-        LogHelper.clearIdentificationLog();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        ListView listView = (ListView) findViewById(R.id.list_person_groups_identify);
-        mPersonGroupListAdapter = new PersonGroupListAdapter();
-        listView.setAdapter(mPersonGroupListAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Button viewLogButton = (Button) findViewById(R.id.view_log);
+        viewLogButton.setText("view log");
+       // ListView listView = (ListView) findViewById(R.id.list_person_groups_identify);
+        //mPersonGroupListAdapter = new PersonGroupListAdapter();
+        //listView.setAdapter(mPersonGroupListAdapter);
+       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 setPersonGroupSelected(position);
@@ -182,9 +207,9 @@ public class IdentificationActivity extends ActionBarActivity {
             setPersonGroupSelected(0);
         } else {
             setPersonGroupSelected(-1);
-        }
+        }*/
     }
-
+/*
     void setPersonGroupSelected(int position) {
         TextView textView = (TextView) findViewById(R.id.text_person_group_selected);
         if (position > 0) {
@@ -204,10 +229,10 @@ public class IdentificationActivity extends ActionBarActivity {
             String personGroupName = mPersonGroupListAdapter.personGroupIdList.get(0);
             refreshIdentifyButtonEnabledStatus();
             textView.setTextColor(Color.BLACK);
-            textView.setText(String.format("Person group to use: %s", personGroupName));
+            textView.setText(String.format("Course to use: %s", StorageHelper.getCourseName(personGroupName, IdentificationActivity.this)));
         }
     }
-
+*/
     private void setUiBeforeBackgroundTask() {
         progressDialog.show();
     }
@@ -221,7 +246,9 @@ public class IdentificationActivity extends ActionBarActivity {
 
     // Show the result on screen when detection is done.
     private void setUiAfterIdentification(IdentifyResult[] result, boolean succeed) {
+
         progressDialog.dismiss();
+
 
         setAllButtonsEnabledStatus(true);
         setIdentifyButtonEnabledStatus(false);
@@ -242,12 +269,15 @@ public class IdentificationActivity extends ActionBarActivity {
                             + ". ";
                 }
                 addLog(logString);
+                Button viewLogButton = (Button) findViewById(R.id.view_log);
+                viewLogButton.setText("save a list");
 
                 // Show the detailed list of detected faces.
-                ListView listView = (ListView) findViewById(R.id.list_identified_faces);
+
                 listView.setAdapter(mFaceListAdapter);
+
             }
-        }
+     }
     }
 
     // Background task of face detection.
@@ -264,8 +294,7 @@ public class IdentificationActivity extends ActionBarActivity {
                         params[0],  /* Input stream of image to detect */
                         true,       /* Whether to return face ID */
                         false,       /* Whether to return face landmarks */
-                        /* Which face attributes to analyze, currently we support:
-                           age,gender,headPose,smile,facialHair */
+
                         null);
             }  catch (Exception e) {
                 publishProgress(e.getMessage());
@@ -306,9 +335,14 @@ public class IdentificationActivity extends ActionBarActivity {
             } else {
                 detected = false;
             }
-
+            names = new ArrayList<>(result.length);
+            len= result.length;
+            for(int i = 0; i<result.length; i++){
+                names.add("");
+            }
             refreshIdentifyButtonEnabledStatus();
         }
+
     }
 
     // Flag to indicate which task is to be performed.
@@ -316,7 +350,7 @@ public class IdentificationActivity extends ActionBarActivity {
 
     // The image selected to detect.
     private Bitmap mBitmap;
-
+    List<UUID> faceIds = new ArrayList<>();
     // Progress dialog popped up when communicating with server.
     ProgressDialog progressDialog;
 
@@ -378,9 +412,11 @@ public class IdentificationActivity extends ActionBarActivity {
     // Called when the "Detect" button is clicked.
     public void identify(View view) {
         // Start detection task only if the image to detect is selected.
+
+
         if (detected && mPersonGroupId != null) {
             // Start a background task to identify faces in the image.
-            List<UUID> faceIds = new ArrayList<>();
+
             for (Face face:  mFaceListAdapter.faces) {
                 faceIds.add(face.faceId);
             }
@@ -403,6 +439,24 @@ public class IdentificationActivity extends ActionBarActivity {
     }
 
     public void viewLog(View view) {
+
+        Button viewLogButton = (Button) findViewById(R.id.view_log);
+
+       if (viewLogButton.getText().equals("save a list"))
+       {
+
+           Intent okIntent = new Intent(IdentificationActivity.this, StudentListActivity.class);
+           okIntent.putStringArrayListExtra("studentList", names);
+           okIntent.putExtra("courseID", mPersonGroupId);
+           okIntent.putExtra("courseName", courseName);
+           okIntent.putExtra("userName",ParseUser.getCurrentUser().getUsername());
+
+
+           startActivity(okIntent);
+
+
+           return;
+       }
         Intent intent = new Intent(this, IdentificationLogActivity.class);
         startActivity(intent);
     }
@@ -414,8 +468,8 @@ public class IdentificationActivity extends ActionBarActivity {
 
     // Set whether the buttons are enabled.
     private void setAllButtonsEnabledStatus(boolean isEnabled) {
-        Button selectImageButton = (Button) findViewById(R.id.manage_person_groups);
-        selectImageButton.setEnabled(isEnabled);
+
+
 
         Button groupButton = (Button) findViewById(R.id.select_image);
         groupButton.setEnabled(isEnabled);
@@ -448,8 +502,10 @@ public class IdentificationActivity extends ActionBarActivity {
         textView.setText(info);
     }
 
+    public ArrayList mData = new ArrayList();
+
     // The adapter of the GridView which contains the details of the detected faces.
-    private class FaceListAdapter extends BaseAdapter {
+    private class FaceListAdapter extends BaseAdapter  {
         // The detected faces.
         List<Face> faces;
 
@@ -460,12 +516,14 @@ public class IdentificationActivity extends ActionBarActivity {
 
         // Initialize with detection result.
         FaceListAdapter(Face[] detectionResult) {
+
             faces = new ArrayList<>();
             faceThumbnails = new ArrayList<>();
             mIdentifyResults = new ArrayList<>();
 
             if (detectionResult != null) {
                 faces = Arrays.asList(detectionResult);
+                Toast.makeText(IdentificationActivity.this,""+faces.size(),Toast.LENGTH_LONG).show();
                 for (Face face: faces) {
                     try {
                         // Crop face thumbnail with five main landmarks drawn from original image.
@@ -503,41 +561,127 @@ public class IdentificationActivity extends ActionBarActivity {
             return position;
         }
 
+
+
+
+        ArrayAdapter<String> adapter;
+
+
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
+            int type = getItemViewType(position);
+            System.out.println("getView " + position + " " + convertView + " type = " + type);
+            LayoutInflater layoutInflater =
+                    (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            final ViewHolder holder;
+
+
             if (convertView == null) {
-                LayoutInflater layoutInflater =
-                        (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                holder = new ViewHolder();
+
                 convertView = layoutInflater.inflate(
                         R.layout.item_face_with_description, parent, false);
+                holder.txt = (TextView)convertView.findViewById(R.id.text_detected_face);
+                holder.txt.setTag(position);
+                holder.spinner =(Spinner)convertView.findViewById(R.id.add_student_to_face);
+                convertView.setTag(holder);
             }
-            convertView.setId(position);
+            else {
+                holder = (ViewHolder)convertView.getTag();
+                if (names.get(position)!= null)
+                    holder.txt.setText(names.get(position));
+            }
+
+            holder.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
+
+
+                    if (parent.getItemAtPosition(pos).equals("select name"))
+                        return;
+                    else {
+                        String identity = "Person: " + parent.getItemAtPosition(pos);
+                        names.set(position%len, identity);
+                        holder.txt.setText(identity);
+
+                    }
+
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
 
             // Show the face thumbnail.
             ((ImageView)convertView.findViewById(R.id.face_thumbnail)).setImageBitmap(
                     faceThumbnails.get(position));
+            holder.spinner.setVisibility(View.INVISIBLE);
 
             if (mIdentifyResults.size() == faces.size()) {
                 // Show the face details.
+
                 DecimalFormat formatter = new DecimalFormat("#0.00");
+
                 if (mIdentifyResults.get(position).candidates.size() > 0) {
+
                     String personId =
                             mIdentifyResults.get(position).candidates.get(0).personId.toString();
-                    String personName =personId;
+                    String personName = StorageHelper.getPersonName(
+                            personId, mPersonGroupId, IdentificationActivity.this);
                     String identity = "Person: " + personName + "\n"
                             + "Confidence: " + formatter.format(
                             mIdentifyResults.get(position).candidates.get(0).confidence);
-                    ((TextView) convertView.findViewById(R.id.text_detected_face)).setText(
-                            identity);
+                    names.add(position,identity);
+
+                    holder.txt.setText(identity);
+                    holder.txt.setTag(position);
+                    notifyDataSetChanged();
+
+
                 } else {
-                    ((TextView) convertView.findViewById(R.id.text_detected_face)).setText(
-                            R.string.face_cannot_be_identified);
+
+
+
+
+
+                    ArrayList<String> arraySpinner = StorageHelper.getAllStudentByCourse(mPersonGroupId,IdentificationActivity.this);
+                    List<String> list = new ArrayList<String>(arraySpinner);
+                    list.add(0,"select name");
+
+
+                    Spinner studentInClass = (Spinner) findViewById(R.id.add_student_to_face);
+
+                    adapter =  new ArrayAdapter<String>(IdentificationActivity.this,android.R.layout.simple_spinner_item,list);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+                    ((Spinner) convertView.findViewById(R.id.add_student_to_face)).setAdapter(adapter);
+                    ((Spinner) convertView.findViewById(R.id.add_student_to_face)).setVisibility(View.VISIBLE);
+
+                    holder.spinner.setVisibility(View.VISIBLE);
+
+
                 }
+
+
             }
 
             return convertView;
         }
+
     }
+
+    public  static class ViewHolder {
+        public TextView txt;
+        public Spinner spinner;
+
+        int index;
+
+    }
+/*
 
     // The adapter of the ListView which contains the person groups.
     private class PersonGroupListAdapter extends BaseAdapter {
@@ -547,18 +691,16 @@ public class IdentificationActivity extends ActionBarActivity {
         PersonGroupListAdapter() {
             personGroupIdList = new ArrayList<>();
 
-
             ArrayList<String> personGroupIds
-                    = StorageHelper.getAllPersonGroupIdsByUserName(IdentificationActivity.this, ParseUser.getCurrentUser().get("username").toString());
+                    = StorageHelper.getAllCourseIdsByUserName(IdentificationActivity.this, ParseUser.getCurrentUser().get("username").toString());
 
-            for (String personGroupId: personGroupIds) {
-                personGroupIdList.add(personGroupId);
-
-                if (mPersonGroupId != null && personGroupId.equals(mPersonGroupId)) {
+            for (String currentKey: personGroupIds) {
+                personGroupIdList.add(currentKey);
+                if (mPersonGroupId != null && currentKey.equals(mPersonGroupId)) {
                     personGroupIdList.set(
                             personGroupIdList.size() - 1,
                             mPersonGroupListAdapter.personGroupIdList.get(0));
-                    mPersonGroupListAdapter.personGroupIdList.set(0, personGroupId);
+                    mPersonGroupListAdapter.personGroupIdList.set(0, currentKey);
                 }
             }
         }
@@ -588,14 +730,14 @@ public class IdentificationActivity extends ActionBarActivity {
             convertView.setId(position);
 
             // set the text of the item
-            String personGroupName = personGroupIdList.get(position);
-            int personNumberInGroup = StorageHelper.getAllStudentByCourse(personGroupIdList.get(position),
-                    IdentificationActivity.this).size();
+            String personGroupName = StorageHelper.getCourseName(
+                    personGroupIdList.get(position), IdentificationActivity.this);
+
             ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
                     String.format(
-                            "%s (Person count: %d)",
-                            personGroupName,
-                            personNumberInGroup));
+                            "%s",
+                            personGroupName
+                    ));
 
             if (position == 0) {
                 ((TextView)convertView.findViewById(R.id.text_person_group)).setTextColor(
@@ -605,4 +747,6 @@ public class IdentificationActivity extends ActionBarActivity {
             return convertView;
         }
     }
+*/
+
 }

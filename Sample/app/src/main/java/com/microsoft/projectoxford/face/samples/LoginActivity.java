@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
@@ -21,11 +22,13 @@ import com.parse.SignUpCallback;
 public class LoginActivity extends Activity {
     // Declare Variables
     Button loginbutton;
-    Button signup;
+    ImageButton signup;
     String usernametxt;
     String passwordtxt;
     String emailtxt;
+    String nametxt;
     EditText password;
+    EditText name;
     EditText username;
     EditText email;
     /** Called when the activity is first created. */
@@ -37,42 +40,10 @@ public class LoginActivity extends Activity {
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
+
         // Locate Buttons in main.xml
-        loginbutton = (Button) findViewById(R.id.login);
-        signup = (Button) findViewById(R.id.signup);
+        signup = (ImageButton) findViewById(R.id.signup);
 
-        // Login Button Click Listener
-        loginbutton.setOnClickListener(new OnClickListener() {
-
-            public void onClick(View arg0) {
-                // Retrieve the text entered from the EditText
-                usernametxt = username.getText().toString();
-                passwordtxt = password.getText().toString();
-                emailtxt = email.getText().toString();
-                // Send data to Parse.com for verification
-                ParseUser.logInInBackground(usernametxt, passwordtxt,
-                        new LogInCallback() {
-                            public void done(ParseUser user, ParseException e) {
-                                if (user != null) {
-                                    // If user exist and authenticated, send user to Welcome.class
-                                    Intent intent = new Intent(
-                                            LoginActivity.this,
-                                            IdentificationActivity.class);
-                                    startActivity(intent);
-                                    Toast.makeText(getApplicationContext(),
-                                            "Successfully Logged in",
-                                            Toast.LENGTH_LONG).show();
-                                    finish();
-                                } else {
-                                    Toast.makeText(
-                                            getApplicationContext(),
-                                            "No such user exist, please signup",
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-            }
-        });
         // Sign up Button Click Listener
         signup.setOnClickListener(new OnClickListener() {
 
@@ -82,9 +53,8 @@ public class LoginActivity extends Activity {
                 passwordtxt = password.getText().toString();
                 emailtxt = email.getText().toString();
 
-
                 // Force user to fill up the form
-                if (usernametxt.equals("") || passwordtxt.equals("")) {
+                if (usernametxt.equals("") || passwordtxt.equals("") || emailtxt.equals("")) {
                     Toast.makeText(getApplicationContext(),
                             "Please complete the sign up form",
                             Toast.LENGTH_LONG).show();
@@ -99,13 +69,18 @@ public class LoginActivity extends Activity {
                     user.signUpInBackground(new SignUpCallback() {
                         public void done(ParseException e) {
                             if (e == null) {
-                                // Show a simple Toast message upon successful registration
+                                Intent intent = new Intent(
+                                        LoginActivity.this,
+                                        IdentificationActivity.class);
+                                startActivity(intent);
                                 Toast.makeText(getApplicationContext(),
-                                        "Successfully Signed up, please log in.",
+                                        "Successfully create user",
                                         Toast.LENGTH_LONG).show();
+                                finish();
+
                             } else {
                                 Toast.makeText(getApplicationContext(),
-                                        "Sign up Error "+e.getLocalizedMessage(), Toast.LENGTH_LONG)
+                                        "Sign up Error ", Toast.LENGTH_LONG)
                                         .show();
                             }
                         }

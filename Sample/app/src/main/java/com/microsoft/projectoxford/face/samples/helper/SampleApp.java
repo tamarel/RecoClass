@@ -37,12 +37,26 @@ import android.app.Application;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.samples.R;
+import com.parse.Parse;
+import com.parse.ParseACL;
+import com.parse.ParseUser;
 
 public class SampleApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
         sFaceServiceClient = new FaceServiceRestClient(getString(R.string.subscription_key));
+
+        Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this);
+        ParseUser.enableAutomaticUser();
+        ParseACL defaultACL = new ParseACL();
+
+
+        defaultACL.setPublicReadAccess(true);
+
+        ParseACL.setDefaultACL(defaultACL, true);
     }
 
     public static FaceServiceClient getFaceServiceClient() {

@@ -17,5 +17,10 @@
         android:layout_marginLeft="@dimen/view_margin"
         android:layout_marginStart="@dimen/view_margin"
         android:id="@+id/text_detected_face" />
+    <Spinner
+        android:layout_width="130dp"
+        android:layout_height="100dp"
+        android:text="Add student name"
+        android:id="@+id/add_student_to_face"/>
 
 </LinearLayout>

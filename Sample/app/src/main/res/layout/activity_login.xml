@@ -3,65 +3,101 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="10dip" >
+    android:padding="10dip"
+    android:background="@color/button_enabled_background">
+
+    <ImageView
+        android:layout_width="250dp"
+        android:layout_height="200dp"
+        android:id="@+id/logo"
+        android:src="@drawable/logo2"
+        android:baselineAlignBottom="false"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+
 
     <TextView
         android:id="@+id/txtusername"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/Username" />
+        android:text="@string/Username"
+        android:textSize="20dp"
+        android:theme="@style/AppTheme"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:id="@+id/username"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:background="@drawable/edittext_shape"
+
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:inputType="text"
         android:layout_below="@+id/txtusername"
-        android:inputType="text" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/txtpassword"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:text="@string/Password"
+        android:textSize="20dp"
+        android:theme="@style/AppTheme"
         android:layout_below="@+id/username"
-        android:text="@string/Password" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <EditText
         android:id="@+id/password"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:background="@drawable/edittext_shape"
+
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textPassword"
         android:layout_below="@+id/txtpassword"
-        android:inputType="textPassword" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/txttemail"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:text="@string/email"
+        android:textSize="20dp"
+        android:theme="@style/AppTheme"
         android:layout_below="@+id/password"
-        android:text="@string/email" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:id="@+id/email"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:background="@drawable/edittext_shape"
+
+        android:gravity="center"
+        android:layout_gravity="center_horizontal"
+        android:inputType="text"
         android:layout_below="@+id/txttemail"
-        android:inputType="text" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
-    <Button
-        android:id="@+id/login"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/LoginBtn"
-        android:layout_above="@+id/signup"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
 
-    <Button
+
+    <ImageButton
         android:id="@+id/signup"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
         android:text="@string/SignupBtn"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:background="@drawable/sign_up"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

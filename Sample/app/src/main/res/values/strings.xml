@@ -44,11 +44,11 @@
     <string name="SignupBtn">Sign Up</string>
     <string name="LogoutBtn">Log Out</string>
     <string name="Welcome">Welcome!</string>
-    <string name="email">Email!</string>
+    <string name="email">Email</string>
     <!-- Identification activity -->
     <string name="identify">Identify</string>
     <string name="manage_person_groups">Manage\nPerson\nGroups</string>
-    <string name="person_groups">Person Groups</string>
+    <string name="person_groups">Course</string>
     <string name="target_image">Target image</string>
     <string name="faces">Faces in image</string>
 
@@ -56,22 +56,22 @@
     <string name="delete">Delete</string>
     <string name="done_and_save">Save</string>
 
-    <string name="person_group_list">Person Group List</string>
-    <string name="person_group_list_tip">- Tap on a group to edit.\n- Long tap to delete.</string>
-    <string name="add_person_group">Add Person Group</string>
+    <string name="person_group_list">Course List</string>
+    <string name="person_group_list_tip">- Tap on a Course to edit.\n- Long tap to delete.</string>
+    <string name="add_person_group">Add Course</string>
 
-    <string name="person_group">Person Group</string>
+    <string name="person_group">Course</string>
     <string name="person_group_tip">- Tap on a person to edit.\n- Long press to delete.</string>
-    <string name="person_group_name">Person group name:</string>
+    <string name="person_group_name">Course name:</string>
     <string name="type_in_person_group_name_tip">Name (within 30 characters)</string>
-    <string name="add_person">Add Person</string>
+    <string name="add_person">Add Student</string>
 
     <string name="person">Person</string>
     <string name="person_tip">- Long press on a face to delete.</string>
     <string name="type_in_person_name_tip">Name (within 30 characters)</string>
     <string name="add_face">Add Face</string>
-    <string name="person_name">Person name:</string>
-    <string name="add_face_to_person">Add Faces To Person</string>
+    <string name="person_name">Student name:</string>
+    <string name="add_face_to_person">Add Faces To Student</string>
     <string name="select_face_tip">Select this person\'s faces (if exist) by click on the checkbox.</string>
 
     <!-- Find similar faces and grouping activity -->
@@ -120,5 +120,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_student_list">StudentListActivity</string>
+    <string name="title_activity_courses">CoursesActivity</string>
+    <string name="title_activity_main2">Main2Activity</string>
 
 </resources>

@@ -101,7 +101,13 @@ public class PersonActivity extends ActionBarActivity {
                 publishProgress("Syncing with server to add person...");
                 addLog("Request: Creating Person in person group" + params[0]);
 
-            return  "";
+                // Start the request to creating person.
+                CreatePersonResult createPersonResult = faceServiceClient.createPerson(
+                        params[0],
+                        getString(R.string.user_provided_person_name),
+                        getString(R.string.user_provided_description_data));
+
+                return createPersonResult.personId.toString();
             } catch (Exception e) {
                 publishProgress(e.getMessage());
                 addLog(e.getMessage());
@@ -197,6 +203,7 @@ public class PersonActivity extends ActionBarActivity {
 
     boolean addNewPerson;
     String personId;
+    String personIdNumber;
     String personGroupId;
     String oldPersonName;
 
@@ -219,6 +226,7 @@ public class PersonActivity extends ActionBarActivity {
             oldPersonName = bundle.getString("PersonName");
             if (!addNewPerson) {
                 personId = bundle.getString("PersonId");
+                personIdNumber = bundle.getString("PersonIdNumber");
             }
         }
 
@@ -226,6 +234,8 @@ public class PersonActivity extends ActionBarActivity {
 
         EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
         editTextPersonName.setText(oldPersonName);
+        EditText editTextPersonID = (EditText)findViewById(R.id.edit_person_id);
+        editTextPersonID.setText(personIdNumber);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle(getString(R.string.progress_dialog_title));
@@ -311,6 +321,7 @@ public class PersonActivity extends ActionBarActivity {
         outState.putString("PersonId", personId);
         outState.putString("PersonGroupId", personGroupId);
         outState.putString("OldPersonName", oldPersonName);
+        outState.putString("PersonIdNumber", personIdNumber);
     }
 
     @Override
@@ -321,6 +332,7 @@ public class PersonActivity extends ActionBarActivity {
         personId = savedInstanceState.getString("PersonId");
         personGroupId = savedInstanceState.getString("PersonGroupId");
         oldPersonName = savedInstanceState.getString("OldPersonName");
+        personIdNumber = savedInstanceState.getString("PersonIdNumber");
     }
 
     public void doneAndSave(View view) {
@@ -344,13 +356,15 @@ public class PersonActivity extends ActionBarActivity {
         EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
         String newPersonName = editTextPersonName.getText().toString();
 
-        if (newPersonName.equals("")) {
-            textWarning.setText(R.string.person_name_empty_warning_message);
+        EditText editTextPersonID = (EditText)findViewById(R.id.edit_person_id);
+        String newPersonID = editTextPersonID.getText().toString();
+        if (newPersonName.equals("")&& newPersonID.equals("")) {
+            textWarning.setText("you must fill all the fields");
             return;
         }
-        CreatePersonResult createPersonResult = StorageHelper.createPerson(newPersonName,"cv",personGroupId,PersonActivity.this,getString(R.string.user_provided_description_data));
+        StorageHelper.createPerson(newPersonName, newPersonID, personId, personGroupId, PersonActivity.this, getString(R.string.user_provided_description_data));
 
-        StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
+        //StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
 
         finish();
     }
@@ -367,11 +381,15 @@ public class PersonActivity extends ActionBarActivity {
         {
             case REQUEST_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
+                    EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
+                    EditText editTextPersonid = (EditText)findViewById(R.id.edit_person_id);
                     indata=data;
                     Uri uriImagePicked = data.getData();
                     Intent intent = new Intent(this, AddFaceToPersonActivity.class);
-                    intent.putExtra("PersonId", personId);
-                    intent.putExtra("PersonName", personId);
+                    intent.putExtra("PersonId",personId);
+                    intent.putExtra("PersonIdNumber",editTextPersonid.getText().toString());
+
+                    intent.putExtra("PersonName", editTextPersonName.getText().toString());
                     intent.putExtra("PersonGroupId", personGroupId);
                     intent.putExtra("ImageUriStr", uriImagePicked.toString());
                     startActivity(intent);
@@ -426,7 +444,7 @@ public class PersonActivity extends ActionBarActivity {
             faceIdList = new ArrayList<>();
             faceChecked = new ArrayList<>();
 
-            ArrayList<String> faceIdSet = StorageHelper.getAllFaceIdsByPerson(personId, PersonActivity.this);
+            Set<String> faceIdSet = StorageHelper.getAllFaceIdsByStudent(personId, PersonActivity.this);
             for (String faceId: faceIdSet) {
                 faceIdList.add(faceId);
                 faceChecked.add(false);
@@ -451,14 +469,6 @@ public class PersonActivity extends ActionBarActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             // set the item view
-         List<Bitmap> faceThumbnails= new ArrayList<>();
-            Uri uriImagePicked = indata.getData();
-            Uri imageUri = Uri.parse(uriImagePicked.toString());
-
-            Bitmap mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
-                    imageUri, getContentResolver());
-
-
             if (convertView == null) {
                 LayoutInflater layoutInflater
                         = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -466,28 +476,9 @@ public class PersonActivity extends ActionBarActivity {
                         R.layout.item_face_with_checkbox, parent, false);
             }
             convertView.setId(position);
-                 try {
-               File file = new File(getApplicationContext().getFilesDir(), personId);
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
 
-               /*faceThumbnails.add(ImageHelper.generateFaceThumbnail(
-                        mBitmap, (FaceRectangle)(StorageHelper.getAllFaceIdsByPersonRect(personId,getBaseContext()).get(0))));
-                faceThumbnails.get(index)
-                        .compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);*/
-                fileOutputStream.flush();
-                fileOutputStream.close();
-
-                Uri uri = Uri.fromFile(file);
-
-            } catch (IOException e) {
-                setInfo(e.getMessage());
-            }
-
-
-            Uri uri = Uri.parse(StorageHelper.getFaceUri(
-                    faceIdList.get(position), PersonActivity.this));
+            Uri uri = Uri.parse(StorageHelper.getFaceUriFromParse(
+                    faceIdList.get(position), personId,PersonActivity.this));
             ((ImageView)convertView.findViewById(R.id.image_face)).setImageURI(uri);
 
             // set the checked status of the item

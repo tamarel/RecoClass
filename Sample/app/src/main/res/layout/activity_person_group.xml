@@ -50,6 +50,7 @@
         android:horizontalSpacing="@dimen/view_margin"
         android:gravity="center" />
 
+
     <TextView
         android:id="@+id/person_group_tip"
         android:layout_width="wrap_content"

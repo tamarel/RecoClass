@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.microsoft.projectoxford.face.samples" >
+    package="com.microsoft.projectoxford.face.samples">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,9 +16,11 @@
     <application
         android:name=".helper.SampleApp"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:largeHeap="true"
+
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.parse.APPLICATION_ID"
             android:value="BJfgq3GzOoiQ0RQfMPVMS58256tyoz2fRNjMoAHf" />
@@ -30,7 +32,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -42,7 +44,7 @@
             android:label="@string/detection"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -52,7 +54,7 @@
             android:label="@string/verification"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -62,7 +64,7 @@
             android:label="@string/identification"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -72,7 +74,7 @@
             android:label="@string/grouping"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -82,7 +84,7 @@
             android:label="@string/find_similar_faces"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -96,7 +98,7 @@
             android:label="@string/person_group_list"
             android:launchMode="singleTop"
             android:parentActivityName=".IdentificationActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".IdentificationActivity" />
@@ -107,7 +109,7 @@
             android:launchMode="singleTop"
             android:parentActivityName=".persongroupmanagement.PersonGroupListActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" >
+            android:windowSoftInputMode="adjustNothing">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".persongroupmanagement.PersonGroupListActivity" />
@@ -118,7 +120,7 @@
             android:launchMode="singleTop"
             android:parentActivityName=".persongroupmanagement.PersonGroupActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing" >
+            android:windowSoftInputMode="adjustNothing">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".persongroupmanagement.PersonGroupActivity" />
@@ -127,7 +129,7 @@
             android:name=".persongroupmanagement.AddFaceToPersonActivity"
             android:label="@string/add_face_to_person"
             android:parentActivityName=".persongroupmanagement.PersonActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".persongroupmanagement.PersonActivity" />
@@ -136,7 +138,7 @@
             android:name=".log.DetectionLogActivity"
             android:label="@string/detection_log"
             android:parentActivityName=".DetectionActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DetectionActivity" />
@@ -145,7 +147,7 @@
             android:name=".log.VerificationLogActivity"
             android:label="@string/verification_log"
             android:parentActivityName=".VerificationActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".VerificationActivity" />
@@ -154,7 +156,7 @@
             android:name=".log.FindSimilarFaceLogActivity"
             android:label="@string/find_similar_face_log"
             android:parentActivityName=".FindSimilarFaceActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".FindSimilarFaceActivity" />
@@ -163,7 +165,7 @@
             android:name=".log.GroupingLogActivity"
             android:label="@string/grouping_log"
             android:parentActivityName=".GroupingActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".GroupingActivity" />
@@ -172,17 +174,25 @@
             android:name=".log.IdentificationLogActivity"
             android:label="@string/identification_log"
             android:parentActivityName=".IdentificationActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".IdentificationActivity" />
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
-        </activity>
-        <activity android:name=".RegisterActivity" >
-        </activity>
+            android:label="@string/title_activity_login" />
+        <activity android:name=".RegisterActivity" />
+        <activity
+            android:name=".StudentListActivity"
+            android:label="@string/title_activity_student_list" />
+        <activity
+            android:name=".persongroupmanagement.CoursesActivity"
+            android:label="@string/title_activity_courses" />
+        <activity android:name=".CourseActivity" />
+        <activity android:name=".persongroupmanagement.MenuActivity" />
+        <activity android:name=".persongroupmanagement.SettingsActivity" />
+        <activity android:name=".AboutUsActivity"></activity>
     </application>
 
 </manifest>

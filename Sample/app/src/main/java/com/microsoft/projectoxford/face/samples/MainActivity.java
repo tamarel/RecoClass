@@ -32,107 +32,137 @@
 //
 package com.microsoft.projectoxford.face.samples;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.MenuActivity;
 import com.parse.LogInCallback;
-import com.parse.Parse;
-import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
 public class MainActivity extends ActionBarActivity {
 
-        private Button signButton,registerNowButton;
+        private ImageButton signButton,registerNowButton;
         private TextView userName,password,helloGuest;
         private EditText passwordField,userNameField;
         private ImageView logo;
         private String usernametxt,passwordtxt,emailtxt;
-        private boolean run= false;
+        private boolean run= true;
+        ProgressDialog progressDialog;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
-            if(!run) {
-                //Parse initialize
-                Parse.enableLocalDatastore(this);
-                Parse.initialize(this);
-                ParseUser.enableAutomaticUser();
-                ParseACL defaultACL = new ParseACL();
-                defaultACL.setPublicReadAccess(true);
-                ParseACL.setDefaultACL(defaultACL, true);
+            signButton = (ImageButton)findViewById(R.id.signButton);
+            registerNowButton = (ImageButton)findViewById(R.id.registerButton);
 
-                ParseUser currentUser = ParseUser.getCurrentUser();
-                currentUser.logOut();
-            }
-            run = true;
-            signButton = (Button)findViewById(R.id.signButton);
-            registerNowButton = (Button)findViewById(R.id.registerButton);
-            userName = (TextView)findViewById(R.id.userNameLable);
-            password = (TextView)findViewById(R.id.passwordLable);
             helloGuest =(TextView)findViewById(R.id.helloGuestLable);
             passwordField=(EditText)findViewById(R.id.passwordFieldText);
-
             userNameField=(EditText)findViewById(R.id.userNameFieldText);
 
             logo=(ImageView)findViewById(R.id.logo);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle(getString(R.string.progress_dialog_title));
+            userNameField.setImeActionLabel("", EditorInfo.IME_ACTION_NEXT);
 
 
-            registerNowButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
 
-                    Intent intent = new Intent(getBaseContext(), LoginActivity.class);
-                    startActivity(intent);
+        userNameField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
-                }
-            });
-            signButton.setOnClickListener(new View.OnClickListener() {
-
-                        public void onClick(View arg0) {
-                            // Retrieve the text entered from the EditText
-                            usernametxt = userNameField.getText().toString();
-                            passwordtxt = passwordField.getText().toString();
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                    if (userNameField.getText().toString().trim().equalsIgnoreCase("")) {
+                        userNameField.setError("Oops! you need to fill this field");
 
 
-                            // Send data to Parse.com for verification
-                            ParseUser.logInInBackground(usernametxt, passwordtxt,
-                                    new LogInCallback() {
-                                        public void done(ParseUser user, ParseException e) {
-                                            if (user != null) {
-                                                // If user exist and authenticated, send user to Welcome.class
-                                                Intent intent = new Intent(
-                                                        MainActivity.this,
-                                                        IdentificationActivity.class);
-                                                startActivity(intent);
-                                                Toast.makeText(getApplicationContext(),
-                                                        "Successfully Logged in",
-                                                        Toast.LENGTH_LONG).show();
-                                                finish();
-                                            } else {
-                                                Toast.makeText(
-                                                        getApplicationContext(),
-                                                        "No such user exist, please signup",
-                                                        Toast.LENGTH_LONG).show();
-                                            }
-                                        }
-                                    });
+                        View view = getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                         }
-                    });
+                    }
+                    return false;
+                }
+
+                return false;
+            }
+
+        });
+
+
+
+
+            registerNowButton.setOnClickListener(new View.OnClickListener()
+
+                                                 {
+                                                     public void onClick(View v) {
+
+                                                         Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                                                         startActivity(intent);
+
+                                                     }
+                                                 }
+
+            );
+            signButton.setOnClickListener(new View.OnClickListener()
+
+                                          {
+
+                                              public void onClick(View arg0) {
+                                                  // Retrieve the text entered from the EditText
+                                                  usernametxt = userNameField.getText().toString();
+                                                  passwordtxt = passwordField.getText().toString();
+
+                                                  progressDialog.setMessage("please wait...");
+                                                  progressDialog.show();
+                                                  // Send data to Parse.com for verification
+                                                  ParseUser.logInInBackground(usernametxt, passwordtxt,
+                                                          new LogInCallback() {
+                                                              public void done(ParseUser user, ParseException e) {
+                                                                  if (user != null) {
+                                                                      // If user exist and authenticated, send user to Welcome.class
+                                                                      Intent intent = new Intent(
+                                                                              MainActivity.this,
+                                                                              MenuActivity.class);
+
+                                                                      intent.putExtra("userName", user.getUsername());
+                                                                      startActivity(intent);
+                                                                      Toast.makeText(getApplicationContext(),
+                                                                              "Successfully Logged in",
+                                                                              Toast.LENGTH_LONG).show();
+                                                                      progressDialog.dismiss();
+                                                                      finish();
+                                                                  } else {
+                                                                      progressDialog.dismiss();
+
+                                                                      Toast.makeText(
+                                                                              getApplicationContext(),
+                                                                              "No such user exist, please signup",
+                                                                              Toast.LENGTH_LONG).show();
+                                                                  }
+                                                              }
+                                                          });
+                                              }
+                                          }
+
+            );
 
 
         }
-
-
-
-
 
 
 }
