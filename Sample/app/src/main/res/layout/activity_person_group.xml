@@ -38,17 +38,26 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/person_group_code_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="@dimen/view_margin">
+
+    </RelativeLayout>
     <GridView
         android:id="@+id/gridView_persons"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/person_group_name_view"
+        android:layout_height="260dp"
         android:layout_above="@+id/person_group_tip"
         android:layout_marginBottom="@dimen/view_margin"
         android:numColumns="3"
         android:verticalSpacing="@dimen/view_margin"
         android:horizontalSpacing="@dimen/view_margin"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_below="@+id/edit_person_group_code" />
 
 
     <TextView
@@ -97,6 +106,29 @@
             style="@style/ButtonStyle" />
 
     </LinearLayout>
+
+    <EditText
+        android:id="@+id/edit_person_group_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:maxLength="30"
+        android:hint="Code"
+        android:layout_below="@+id/person_group_name_view"
+        android:layout_alignRight="@+id/person_group_name_view"
+        android:layout_alignEnd="@+id/person_group_name_view"
+        android:layout_toRightOf="@+id/person_group_code"
+        android:layout_toEndOf="@+id/person_group_code" />
+
+    <TextView
+        android:id="@+id/person_group_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Code course"
+        android:layout_alignTop="@+id/edit_person_group_code"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="12dp" />
 
 
 </RelativeLayout>

@@ -54,13 +54,12 @@
 
     <ImageButton
         android:layout_width="120dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:background="@drawable/register_button"
         android:id="@+id/registerButton"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/helloGuestLable"
-        android:layout_alignStart="@+id/helloGuestLable"
-        android:layout_marginBottom="20dp" />
+        android:layout_alignStart="@+id/helloGuestLable" />
 
 
 
@@ -80,8 +79,23 @@
         android:layout_height="50dp"
         android:background="@drawable/sign_in_button"
         android:id="@+id/signButton"
-        android:layout_below="@+id/passwordFieldText"
+        android:layout_above="@+id/registerButton"
         android:layout_alignLeft="@+id/registerButton"
         android:layout_alignStart="@+id/registerButton"
-        android:layout_marginTop="21dp" />
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="forgot your password?"
+        android:id="@+id/forgot_password"
+        android:layout_below="@+id/passwordFieldText"
+        android:autoText="false"
+        android:textStyle="bold"
+        android:autoLink="email"
+        android:maxLines="1"
+        android:layout_marginRight="0dp"
+        android:layout_marginLeft="150dp" />
+
 </RelativeLayout>

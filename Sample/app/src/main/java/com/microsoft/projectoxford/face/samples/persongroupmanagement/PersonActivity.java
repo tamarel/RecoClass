@@ -60,17 +60,23 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.CreatePersonResult;
 import com.microsoft.projectoxford.face.contract.FaceRectangle;
+import com.microsoft.projectoxford.face.samples.AboutUsActivity;
+import com.microsoft.projectoxford.face.samples.CalendarActivity;
+import com.microsoft.projectoxford.face.samples.MainActivity;
 import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.helper.ImageHelper;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
+import com.parse.Parse;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -206,7 +212,7 @@ public class PersonActivity extends ActionBarActivity {
     String personIdNumber;
     String personGroupId;
     String oldPersonName;
-
+    String courseName,codeCourse,courseId;
     private static final int REQUEST_SELECT_IMAGE = 0;
 
     FaceGridViewAdapter faceGridViewAdapter;
@@ -224,6 +230,10 @@ public class PersonActivity extends ActionBarActivity {
             addNewPerson = bundle.getBoolean("AddNewPerson");
             personGroupId = bundle.getString("PersonGroupId");
             oldPersonName = bundle.getString("PersonName");
+            courseName = bundle.getString("courseName");
+            codeCourse = bundle.getString("codeCourse");
+
+
             if (!addNewPerson) {
                 personId = bundle.getString("PersonId");
                 personIdNumber = bundle.getString("PersonIdNumber");
@@ -362,7 +372,9 @@ public class PersonActivity extends ActionBarActivity {
             textWarning.setText("you must fill all the fields");
             return;
         }
-        StorageHelper.createPerson(newPersonName, newPersonID, personId, personGroupId, PersonActivity.this, getString(R.string.user_provided_description_data));
+       if ( StorageHelper.createPerson(newPersonName, newPersonID, personId, personGroupId,
+                courseName,codeCourse ,PersonActivity.this) ==false)
+           Toast.makeText(PersonActivity.this,"something is wrong",Toast.LENGTH_LONG).show();
 
         //StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
 
@@ -387,6 +399,8 @@ public class PersonActivity extends ActionBarActivity {
                     Uri uriImagePicked = data.getData();
                     Intent intent = new Intent(this, AddFaceToPersonActivity.class);
                     intent.putExtra("PersonId",personId);
+                    intent.putExtra("courseName",courseName);
+                    intent.putExtra("code",codeCourse);
                     intent.putExtra("PersonIdNumber",editTextPersonid.getText().toString());
 
                     intent.putExtra("PersonName", editTextPersonName.getText().toString());
@@ -416,7 +430,7 @@ public class PersonActivity extends ActionBarActivity {
             }
         }
 
-        StorageHelper.deleteFaces(faceIdsToDelete, personId, this);
+        StorageHelper.deleteFaces(faceIdsToDelete,personId, this);
 
         faceGridViewAdapter.faceIdList = newFaceIdList;
         faceGridViewAdapter.faceChecked = newFaceChecked;
@@ -499,5 +513,68 @@ public class PersonActivity extends ActionBarActivity {
 
             return convertView;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_list_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.menu_signOut) {
+            ParseUser.logOutInBackground();
+            Intent intent = new Intent(PersonActivity.this,MainActivity.class);
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_aboutUs){
+            Intent intent = new Intent(PersonActivity.this,AboutUsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_calendar){
+            Intent intent = new Intent(PersonActivity.this,CalendarActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_addCourse){
+            Intent intent = new Intent(PersonActivity.this,PersonGroupActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            intent.putExtra("AddNewPersonGroup",true);
+            String personGroupId = UUID.randomUUID().toString();
+            intent.putExtra("PersonGroupName", "");
+            intent.putExtra("PersonGroupId", personGroupId);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_goMenu){
+
+            Intent intent = new Intent(PersonActivity.this,MenuActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_settings){
+            Intent intent = new Intent(PersonActivity.this,SettingsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

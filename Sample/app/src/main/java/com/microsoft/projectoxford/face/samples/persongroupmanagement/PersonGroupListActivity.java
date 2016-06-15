@@ -55,6 +55,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.samples.AboutUsActivity;
+import com.microsoft.projectoxford.face.samples.MainActivity;
 import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
@@ -338,7 +340,7 @@ public class PersonGroupListActivity extends ActionBarActivity {
                 newPersonGroupChecked.add(false);
             }
         }
-        StorageHelper.deletePersonGroups(personGroupIdsToDelete,ParseUser.getCurrentUser().get("username").toString() ,this);
+       // StorageHelper.deletePersonGroups(personGroupIdsToDelete ,this);
         personGroupsListAdapter.personGroupIdList = newPersonGroupIdList;
         personGroupsListAdapter.personGroupChecked = newPersonGroupChecked;
         personGroupsListAdapter.notifyDataSetChanged();
@@ -347,4 +349,55 @@ public class PersonGroupListActivity extends ActionBarActivity {
 
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_list_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.menu_signOut) {
+            ParseUser.logOutInBackground();
+            Intent intent = new Intent(PersonGroupListActivity.this,MainActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_aboutUs){
+            Intent intent = new Intent(PersonGroupListActivity.this,AboutUsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_calendar){
+            Intent intent = new Intent(PersonGroupListActivity.this,AboutUsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_addCourse){
+            Intent intent = new Intent(PersonGroupListActivity.this,PersonGroupActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_goMenu){
+
+            Intent intent = new Intent(PersonGroupListActivity.this,MenuActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_settings){
+            Intent intent = new Intent(PersonGroupListActivity.this,SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

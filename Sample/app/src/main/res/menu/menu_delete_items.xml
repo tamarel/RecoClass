@@ -5,6 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity">
     <item android:id="@+id/menu_delete_items"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         android:title="@string/delete" />
 </menu>

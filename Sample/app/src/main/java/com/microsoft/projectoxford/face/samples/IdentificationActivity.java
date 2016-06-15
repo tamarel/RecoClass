@@ -47,6 +47,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -70,8 +72,10 @@ import com.microsoft.projectoxford.face.samples.helper.SampleApp;
 import com.microsoft.projectoxford.face.samples.helper.SelectImageActivity;
 import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
 import com.microsoft.projectoxford.face.samples.log.IdentificationLogActivity;
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.MenuActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity;
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.SettingsActivity;
 import com.parse.ParseUser;
 
 import java.io.ByteArrayInputStream;
@@ -90,7 +94,7 @@ import java.util.UUID;
 
 public class IdentificationActivity extends ActionBarActivity  {
     View _convertView;
-    public String mPersonGroupId;
+    public String mPersonGroupId,code;
      private boolean mSucceed = true;
     ListView listView ;
     public ViewHolder holder;
@@ -176,6 +180,7 @@ public class IdentificationActivity extends ActionBarActivity  {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mPersonGroupId  = bundle.getString("PersonGroupId");
+            code  = bundle.getString("codeCourse");
             courseName  = bundle.getString("PersonGroupName");
         }
         listView= (ListView) findViewById(R.id.list_identified_faces);
@@ -193,46 +198,8 @@ public class IdentificationActivity extends ActionBarActivity  {
         super.onResume();
         Button viewLogButton = (Button) findViewById(R.id.view_log);
         viewLogButton.setText("view log");
-       // ListView listView = (ListView) findViewById(R.id.list_person_groups_identify);
-        //mPersonGroupListAdapter = new PersonGroupListAdapter();
-        //listView.setAdapter(mPersonGroupListAdapter);
-       /* listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                setPersonGroupSelected(position);
-            }
-        });
+    }
 
-        if (mPersonGroupListAdapter.personGroupIdList.size() != 0) {
-            setPersonGroupSelected(0);
-        } else {
-            setPersonGroupSelected(-1);
-        }*/
-    }
-/*
-    void setPersonGroupSelected(int position) {
-        TextView textView = (TextView) findViewById(R.id.text_person_group_selected);
-        if (position > 0) {
-            String personGroupIdSelected = mPersonGroupListAdapter.personGroupIdList.get(position);
-            mPersonGroupListAdapter.personGroupIdList.set(
-                    position, mPersonGroupListAdapter.personGroupIdList.get(0));
-            mPersonGroupListAdapter.personGroupIdList.set(0, personGroupIdSelected);
-            ListView listView = (ListView) findViewById(R.id.list_person_groups_identify);
-            listView.setAdapter(mPersonGroupListAdapter);
-            setPersonGroupSelected(0);
-        } else if (position < 0) {
-            setIdentifyButtonEnabledStatus(false);
-            textView.setTextColor(Color.RED);
-            textView.setText(R.string.no_person_group_selected_for_identification_warning);
-        } else {
-            mPersonGroupId = mPersonGroupListAdapter.personGroupIdList.get(0);
-            String personGroupName = mPersonGroupListAdapter.personGroupIdList.get(0);
-            refreshIdentifyButtonEnabledStatus();
-            textView.setTextColor(Color.BLACK);
-            textView.setText(String.format("Course to use: %s", StorageHelper.getCourseName(personGroupName, IdentificationActivity.this)));
-        }
-    }
-*/
     private void setUiBeforeBackgroundTask() {
         progressDialog.show();
     }
@@ -328,6 +295,7 @@ public class IdentificationActivity extends ActionBarActivity  {
                 if (result.length == 0) {
                     detected = false;
                     setInfo("No faces detected!");
+                    return;
                 } else {
                     detected = true;
                     setInfo("Click on the \"Identify\" button to identify the faces in image.");
@@ -427,7 +395,7 @@ public class IdentificationActivity extends ActionBarActivity  {
                     faceIds.toArray(new UUID[faceIds.size()]));
         } else {
             // Not detected or person group exists.
-            setInfo("Please select an image and create a person group first.");
+            setInfo("Please select an image first.");
         }
     }
 
@@ -444,11 +412,18 @@ public class IdentificationActivity extends ActionBarActivity  {
 
        if (viewLogButton.getText().equals("save a list"))
        {
+            for(String name: names){
+                if (name.equals("select name")) {
+                    Toast.makeText(IdentificationActivity.this,"you must enter names of students",Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
 
            Intent okIntent = new Intent(IdentificationActivity.this, StudentListActivity.class);
            okIntent.putStringArrayListExtra("studentList", names);
-           okIntent.putExtra("courseID", mPersonGroupId);
+           okIntent.putExtra("courseId", mPersonGroupId);
            okIntent.putExtra("courseName", courseName);
+           okIntent.putExtra("codeCourse", code);
            okIntent.putExtra("userName",ParseUser.getCurrentUser().getUsername());
 
 
@@ -601,7 +576,7 @@ public class IdentificationActivity extends ActionBarActivity  {
                     if (parent.getItemAtPosition(pos).equals("select name"))
                         return;
                     else {
-                        String identity = "Person: " + parent.getItemAtPosition(pos);
+                        String identity = "" + parent.getItemAtPosition(pos);
                         names.set(position%len, identity);
                         holder.txt.setText(identity);
 
@@ -623,20 +598,18 @@ public class IdentificationActivity extends ActionBarActivity  {
             if (mIdentifyResults.size() == faces.size()) {
                 // Show the face details.
 
-                DecimalFormat formatter = new DecimalFormat("#0.00");
-
                 if (mIdentifyResults.get(position).candidates.size() > 0) {
 
                     String personId =
                             mIdentifyResults.get(position).candidates.get(0).personId.toString();
                     String personName = StorageHelper.getPersonName(
                             personId, mPersonGroupId, IdentificationActivity.this);
-                    String identity = "Person: " + personName + "\n"
-                            + "Confidence: " + formatter.format(
-                            mIdentifyResults.get(position).candidates.get(0).confidence);
-                    names.add(position,identity);
 
-                    holder.txt.setText(identity);
+                    String identity = "" + personName;
+                    String cv = StorageHelper.getIdOfStudent(personId);
+                    names.set(position, identity + "," + cv);
+
+                    holder.txt.setText(identity+","+cv);
                     holder.txt.setTag(position);
                     notifyDataSetChanged();
 
@@ -681,72 +654,64 @@ public class IdentificationActivity extends ActionBarActivity  {
         int index;
 
     }
-/*
-
-    // The adapter of the ListView which contains the person groups.
-    private class PersonGroupListAdapter extends BaseAdapter {
-        List<String> personGroupIdList;
-
-        // Initialize with detection result.
-        PersonGroupListAdapter() {
-            personGroupIdList = new ArrayList<>();
-
-            ArrayList<String> personGroupIds
-                    = StorageHelper.getAllCourseIdsByUserName(IdentificationActivity.this, ParseUser.getCurrentUser().get("username").toString());
-
-            for (String currentKey: personGroupIds) {
-                personGroupIdList.add(currentKey);
-                if (mPersonGroupId != null && currentKey.equals(mPersonGroupId)) {
-                    personGroupIdList.set(
-                            personGroupIdList.size() - 1,
-                            mPersonGroupListAdapter.personGroupIdList.get(0));
-                    mPersonGroupListAdapter.personGroupIdList.set(0, currentKey);
-                }
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return personGroupIdList.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return personGroupIdList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater layoutInflater =
-                        (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = layoutInflater.inflate(R.layout.item_person_group, parent, false);
-            }
-            convertView.setId(position);
-
-            // set the text of the item
-            String personGroupName = StorageHelper.getCourseName(
-                    personGroupIdList.get(position), IdentificationActivity.this);
-
-            ((TextView)convertView.findViewById(R.id.text_person_group)).setText(
-                    String.format(
-                            "%s",
-                            personGroupName
-                    ));
-
-            if (position == 0) {
-                ((TextView)convertView.findViewById(R.id.text_person_group)).setTextColor(
-                        Color.parseColor("#3399FF"));
-            }
-
-            return convertView;
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_list_option, menu);
+        return true;
     }
-*/
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.menu_signOut) {
+            ParseUser.logOutInBackground();
+            Intent intent = new Intent(IdentificationActivity.this,MainActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_aboutUs){
+            Intent intent = new Intent(IdentificationActivity.this,AboutUsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_calendar){
+            Intent intent = new Intent(IdentificationActivity.this,AboutUsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_addCourse){
+            Intent intent = new Intent(IdentificationActivity.this,PersonGroupActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            intent.putExtra("AddNewPersonGroup",true);
+            String personGroupId = UUID.randomUUID().toString();
+            intent.putExtra("PersonGroupName", "");
+            intent.putExtra("PersonGroupId", personGroupId);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_goMenu){
+
+            Intent intent = new Intent(IdentificationActivity.this,MenuActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_settings){
+            Intent intent = new Intent(IdentificationActivity.this,SettingsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 }

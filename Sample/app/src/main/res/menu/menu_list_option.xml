@@ -1,0 +1,26 @@
+<!-- Copyright (c) Microsoft. All rights reserved. -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity">
+    <item android:id="@+id/menu_signOut"
+        app:showAsAction="never"
+        android:title="sign out" />
+    <item android:id="@+id/menu_goMenu"
+        app:showAsAction="never"
+        android:title="Menu" />
+    <item android:id="@+id/menu_addCourse"
+        app:showAsAction="never"
+        android:title="Add course" />
+    <item android:id="@+id/menu_calendar"
+        app:showAsAction="never"
+        android:title="Calendar" />
+    <item android:id="@+id/menu_settings"
+        app:showAsAction="never"
+        android:title="Settings" />
+    <item android:id="@+id/menu_aboutUs"
+        app:showAsAction="never"
+        android:title="aboutUs" />
+
+</menu>

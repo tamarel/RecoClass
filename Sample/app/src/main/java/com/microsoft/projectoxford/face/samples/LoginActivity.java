@@ -13,16 +13,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.microsoft.projectoxford.face.samples.persongroupmanagement.MenuActivity;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SignUpCallback;
 
 public class LoginActivity extends Activity {
     // Declare Variables
-    Button loginbutton;
-    ImageButton signup;
+    ImageButton signup,reset_password;
     String usernametxt;
     String passwordtxt;
     String emailtxt;
@@ -71,7 +72,7 @@ public class LoginActivity extends Activity {
                             if (e == null) {
                                 Intent intent = new Intent(
                                         LoginActivity.this,
-                                        IdentificationActivity.class);
+                                        MenuActivity.class);
                                 startActivity(intent);
                                 Toast.makeText(getApplicationContext(),
                                         "Successfully create user",

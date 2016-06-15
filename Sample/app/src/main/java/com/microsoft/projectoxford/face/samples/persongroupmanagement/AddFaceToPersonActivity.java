@@ -207,7 +207,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
                     Uri uri = Uri.fromFile(file);
                    StorageHelper.setFaceUri(
                           faceId, uri.toString(), mPersonId, AddFaceToPersonActivity.this);
-                    StorageHelper.saveFaceUri(faceId,uri.toString(),idStudent,mPersonId,mPersonGroupId,mPersonName,AddFaceToPersonActivity.this);
+                    StorageHelper.saveFaceUri(faceId,uri.toString(),idStudent,mPersonId,mPersonGroupId,mPersonName,courseName,code,AddFaceToPersonActivity.this);
                 } catch (IOException e) {
                     setInfo(e.getMessage());
                 }
@@ -240,7 +240,7 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         }
     }
 
-    String mPersonGroupId;
+    String mPersonGroupId,courseName,code;
     String mPersonId;
     String idStudent;
     String mImageUriStr;
@@ -260,6 +260,8 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
         if (bundle != null) {
             mPersonId = bundle.getString("PersonId");
             mPersonGroupId = bundle.getString("PersonGroupId");
+            courseName = bundle.getString("courseName");
+            code = bundle.getString("code");
             mPersonName = bundle.getString("PersonName");
             mImageUriStr = bundle.getString("ImageUriStr");
             idStudent = bundle.getString("PersonIdNumber");

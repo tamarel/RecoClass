@@ -61,6 +61,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.samples.AboutUsActivity;
+import com.microsoft.projectoxford.face.samples.CalendarActivity;
+import com.microsoft.projectoxford.face.samples.MainActivity;
 import com.microsoft.projectoxford.face.samples.R;
 import com.microsoft.projectoxford.face.samples.helper.LogHelper;
 import com.microsoft.projectoxford.face.samples.helper.SampleApp;
@@ -253,13 +256,25 @@ public class PersonGroupActivity extends ActionBarActivity {
         intent.putExtra("AddNewPerson", true);
         intent.putExtra("PersonName", "");
         intent.putExtra("PersonGroupId", personGroupId);
+
+
+        EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
+        String newPersonGroupName = editTextPersonGroupName.getText().toString();
+        EditText editTextPersonGroupCode = (EditText)findViewById(R.id.edit_person_group_code);
+        String code = editTextPersonGroupCode.getText().toString();
+        if (newPersonGroupName.equals("") || code.equals("")) {
+            setInfo("Course name or Code could not be empty");
+            return;
+        }
+        intent.putExtra("codeCourse", code);
+        intent.putExtra("courseName", newPersonGroupName);
         startActivity(intent);
     }
 
     boolean addNewPersonGroup;
     boolean personGroupExists;
     String personGroupId;
-    String oldPersonGroupName;
+    String oldPersonGroupName,oldPersonGroupCode;
 
     PersonGridViewAdapter personGridViewAdapter;
 
@@ -275,9 +290,11 @@ public class PersonGroupActivity extends ActionBarActivity {
         if (bundle != null) {
             addNewPersonGroup = bundle.getBoolean("AddNewPersonGroup");
             oldPersonGroupName = bundle.getString("PersonGroupName");
+            oldPersonGroupCode = bundle.getString("PersonGroupCode");
             personGroupId = bundle.getString("PersonGroupId");
             personGroupExists = !addNewPersonGroup;
         }
+
 
         initializeGridView();
 
@@ -286,6 +303,9 @@ public class PersonGroupActivity extends ActionBarActivity {
 
         EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
         editTextPersonGroupName.setText(oldPersonGroupName);
+
+        EditText editTextPersonGroupCode = (EditText)findViewById(R.id.edit_person_group_code);
+        editTextPersonGroupCode.setText(oldPersonGroupCode);
     }
 
     private void initializeGridView() {
@@ -354,15 +374,26 @@ public class PersonGroupActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (!personGridViewAdapter.longPressed) {
-                    String personId = personGridViewAdapter.personIdList.get(position);
-                    String personName = StorageHelper.getPersonName(
-                            personId, personGroupId, PersonGroupActivity.this);
+                    String[] properties = personGridViewAdapter.personIdList.get(position).split(",");
+
 
                     Intent intent = new Intent(PersonGroupActivity.this, PersonActivity.class);
                     intent.putExtra("AddNewPerson", false);
-                    intent.putExtra("PersonName", personId);
-                    intent.putExtra("PersonId", StorageHelper.getPersonId(personId,"cv"));
+
+                    intent.putExtra("PersonName", properties[0]);
+                    intent.putExtra("PersonIdNumber", properties[1]);
+                    intent.putExtra("PersonId", StorageHelper.getPersonId(properties[0], properties[1]));
                     intent.putExtra("PersonGroupId", personGroupId);
+                    EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
+                    String newPersonGroupName = editTextPersonGroupName.getText().toString();
+                    EditText editTextPersonGroupCode = (EditText)findViewById(R.id.edit_person_group_code);
+                    String code = editTextPersonGroupCode.getText().toString();
+                    if (newPersonGroupName.equals("") || code.equals("")) {
+                        setInfo("Course name or Code could not be empty");
+                        return;
+                    }
+                    intent.putExtra("codeCourse", code);
+                    intent.putExtra("courseName", newPersonGroupName);
                     startActivity(intent);
                 }
             }
@@ -388,6 +419,14 @@ public class PersonGroupActivity extends ActionBarActivity {
         outState.putString("OldPersonGroupName", oldPersonGroupName);
         outState.putString("PersonGroupId", personGroupId);
         outState.putBoolean("PersonGroupExists", personGroupExists);
+
+        EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
+        String newPersonGroupName = editTextPersonGroupName.getText().toString();
+        EditText editTextPersonGroupCode = (EditText)findViewById(R.id.edit_person_group_code);
+        String code = editTextPersonGroupCode.getText().toString();
+
+        outState.putString("codeCourse", code);
+        outState.putString("courseName", newPersonGroupName);
     }
 
     @Override
@@ -398,6 +437,7 @@ public class PersonGroupActivity extends ActionBarActivity {
         personGroupId = savedInstanceState.getString("PersonGroupId");
         oldPersonGroupName = savedInstanceState.getString("OldPersonGroupName");
         personGroupExists = savedInstanceState.getBoolean("PersonGroupExists");
+
     }
 
     public void doneAndSave(View view) {
@@ -412,13 +452,23 @@ public class PersonGroupActivity extends ActionBarActivity {
 
         EditText editTextPersonGroupName = (EditText)findViewById(R.id.edit_person_group_name);
         String newPersonGroupName = editTextPersonGroupName.getText().toString();
-        if (newPersonGroupName.equals("")) {
-            setInfo("Course name could not be empty");
+        EditText editTextPersonGroupCode = (EditText)findViewById(R.id.edit_person_group_code);
+        String code = editTextPersonGroupCode.getText().toString();
+
+        if (newPersonGroupName.equals("") || code.equals("")) {
+            setInfo("Course name or Code could not be empty");
             return;
         }
 
        // StorageHelper.setPersonGroupName(personGroupId, newPersonGroupName, PersonGroupActivity.this);
-        StorageHelper.setCourseName(personGroupId, newPersonGroupName, newPersonGroupName, PersonGroupActivity.this);
+       boolean result = StorageHelper.setCourseName(personGroupId,code, newPersonGroupName, newPersonGroupName, PersonGroupActivity.this);
+       if (!result)
+       {
+           Toast.makeText(PersonGroupActivity.this,"error, code course already exist",Toast.LENGTH_LONG).show();
+           personGridViewAdapter.notifyDataSetChanged();
+           setInfo("error in create course");
+           return;
+       }
         if (trainPersonGroup) {
             new TrainPersonGroupTask().execute(personGroupId);
         } else {
@@ -430,18 +480,24 @@ public class PersonGroupActivity extends ActionBarActivity {
         List<String> newPersonIdList = new ArrayList<>();
         List<Boolean> newPersonChecked = new ArrayList<>();
         List<String> personIdsToDelete = new ArrayList<>();
+        List<String> personCVsToDelete = new ArrayList<>();
         for (int i = 0; i < personGridViewAdapter.personChecked.size(); ++i) {
+
             if (personGridViewAdapter.personChecked.get(i)) {
-                String personId = personGridViewAdapter.personIdList.get(i);
+                String personIdNumber = (personGridViewAdapter.personIdList.get(i).split(","))[1];
+                String personId = StorageHelper.getPersonId(personIdNumber);
+
                 personIdsToDelete.add(personId);
+                personCVsToDelete.add(personIdNumber); //taz
                 new DeletePersonTask(personGroupId).execute(personId);
             } else {
+
                 newPersonIdList.add(personGridViewAdapter.personIdList.get(i));
                 newPersonChecked.add(false);
             }
         }
 
-        StorageHelper.deletePersons(personIdsToDelete, personGroupId, this);
+        StorageHelper.deletePersons(personIdsToDelete,personCVsToDelete,personGroupId, this);
 
         personGridViewAdapter.personIdList = newPersonIdList;
         personGridViewAdapter.personChecked = newPersonChecked;
@@ -536,4 +592,69 @@ public class PersonGroupActivity extends ActionBarActivity {
             return convertView;
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_list_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.menu_signOut) {
+            ParseUser.logOutInBackground();
+            Intent intent = new Intent(PersonGroupActivity.this,MainActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_aboutUs){
+            Intent intent = new Intent(PersonGroupActivity.this,AboutUsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_calendar){
+            Intent intent = new Intent(PersonGroupActivity.this,CalendarActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_addCourse){
+            Intent intent = new Intent(PersonGroupActivity.this,PersonGroupActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            intent.putExtra("AddNewPersonGroup",true);
+            String personGroupId = UUID.randomUUID().toString();
+            intent.putExtra("PersonGroupName", "");
+            intent.putExtra("PersonGroupId", personGroupId);
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_goMenu){
+
+            Intent intent = new Intent(PersonGroupActivity.this,MenuActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+        else if ( id == R.id.menu_settings){
+            Intent intent = new Intent(PersonGroupActivity.this,SettingsActivity.class);
+            intent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
+
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

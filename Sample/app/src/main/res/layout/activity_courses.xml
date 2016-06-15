@@ -11,13 +11,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
         android:layout_weight="0.5"
-
     android:gravity="center_vertical"
-
     android:textAppearance="?android:attr/textAppearanceLarge"
     android:id="@+id/explain"
-    android:textColor="#76d0dc"
+        android:textColor="#3366d1"
     android:layout_gravity="center"
+
         android:autoText="false"
         android:textStyle="bold"
         android:textSize="30sp"

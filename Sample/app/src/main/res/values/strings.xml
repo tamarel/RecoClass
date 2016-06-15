@@ -121,6 +121,7 @@
         completions."
     </string>
     <string name="title_activity_student_list">StudentListActivity</string>
+    <string name="title_activity_query_list">Query Result</string>
     <string name="title_activity_courses">CoursesActivity</string>
     <string name="title_activity_main2">Main2Activity</string>
 
