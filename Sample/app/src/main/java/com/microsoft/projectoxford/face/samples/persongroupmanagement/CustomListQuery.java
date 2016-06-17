@@ -26,6 +26,7 @@ import com.microsoft.projectoxford.face.samples.R;
 
 import java.util.List;
 
+//custom list query
 
 public class CustomListQuery  extends ArrayAdapter<QueryRow> {
 

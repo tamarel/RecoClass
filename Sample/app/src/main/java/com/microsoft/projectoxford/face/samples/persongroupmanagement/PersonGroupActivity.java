@@ -76,7 +76,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-
+/*person group activity
+*this class responsibility about course
+ */
 public class PersonGroupActivity extends ActionBarActivity {
     static String _personId;
     // Background task of adding a course.
@@ -144,6 +146,7 @@ public class PersonGroupActivity extends ActionBarActivity {
         }
     }
 
+    //trainig course
     class TrainPersonGroupTask extends AsyncTask<String, String, String> {
 
         @Override
@@ -185,7 +188,7 @@ public class PersonGroupActivity extends ActionBarActivity {
             }
         }
     }
-
+//delete person task
     class DeletePersonTask extends AsyncTask<String, String, String> {
         String mPersonGroupId;
         DeletePersonTask(String personGroupId) {
@@ -249,6 +252,7 @@ public class PersonGroupActivity extends ActionBarActivity {
         }
     }
 
+    //add person
     private void addPerson() {
         setInfo("");
 
@@ -281,6 +285,8 @@ public class PersonGroupActivity extends ActionBarActivity {
     // Progress dialog popped up when communicating with server.
     ProgressDialog progressDialog;
 
+
+    //on create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

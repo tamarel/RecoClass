@@ -32,20 +32,14 @@
 //
 package com.microsoft.projectoxford.face.samples;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v7.app.ActionBarActivity;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +50,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -74,7 +67,6 @@ import com.microsoft.projectoxford.face.samples.helper.StorageHelper;
 import com.microsoft.projectoxford.face.samples.log.IdentificationLogActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.MenuActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupActivity;
-import com.microsoft.projectoxford.face.samples.persongroupmanagement.PersonGroupListActivity;
 import com.microsoft.projectoxford.face.samples.persongroupmanagement.SettingsActivity;
 import com.parse.ParseUser;
 
@@ -82,13 +74,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 
@@ -399,36 +387,33 @@ public class IdentificationActivity extends ActionBarActivity  {
         }
     }
 
-    public void managePersonGroups(View view) {
-        Intent intent = new Intent(this, PersonGroupListActivity.class);
-        startActivity(intent);
-
-        refreshIdentifyButtonEnabledStatus();
-    }
 
     public void viewLog(View view) {
-
+        boolean b=true;
         Button viewLogButton = (Button) findViewById(R.id.view_log);
 
        if (viewLogButton.getText().equals("save a list"))
        {
             for(String name: names){
-                if (name.equals("select name")) {
+                if (name.equals("")) {
                     Toast.makeText(IdentificationActivity.this,"you must enter names of students",Toast.LENGTH_LONG).show();
-                    return;
+                    b=false;
                 }
             }
+            if (b==false){
+                return;
+            }
+           else {
+                Intent okIntent = new Intent(IdentificationActivity.this, StudentListActivity.class);
+                okIntent.putStringArrayListExtra("studentList", names);
+                okIntent.putExtra("courseId", mPersonGroupId);
+                okIntent.putExtra("courseName", courseName);
+                okIntent.putExtra("codeCourse", code);
+                okIntent.putExtra("userName", ParseUser.getCurrentUser().getUsername());
 
-           Intent okIntent = new Intent(IdentificationActivity.this, StudentListActivity.class);
-           okIntent.putStringArrayListExtra("studentList", names);
-           okIntent.putExtra("courseId", mPersonGroupId);
-           okIntent.putExtra("courseName", courseName);
-           okIntent.putExtra("codeCourse", code);
-           okIntent.putExtra("userName",ParseUser.getCurrentUser().getUsername());
 
-
-           startActivity(okIntent);
-
+                startActivity(okIntent);
+            }
 
            return;
        }

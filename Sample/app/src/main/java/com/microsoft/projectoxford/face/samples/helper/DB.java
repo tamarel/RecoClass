@@ -15,12 +15,13 @@ import java.util.ArrayList;
 
 /**
  * Created by tamarazu on 6/13/2016.
+ * this class help us to use in date that we got from parse helper
  */
 public class DB {
 
     static ArrayList<QueryRow> studentList = new ArrayList<>();
 
-    //user query
+    //user query - get result of user query
     public static String runQuery(String from, String to,
                                   String courseId, String action, String act, int number, Context context) {
         studentList.clear();
@@ -29,12 +30,11 @@ public class DB {
         //counting sort
 
         ArrayList<String >  s = new ArrayList<>(StorageHelper.getAllStudentByCourse(courseId, context));
-
+        // sorted lists
         try {
 
             for (String student: s) {
                String [] studentProperties = student.split(",");
-
                 studentList.add(new QueryRow(studentProperties[0],studentProperties[1],0));
 
             }
@@ -44,9 +44,7 @@ public class DB {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject student = arr.getJSONObject(i);
                     add(student.get("cv").toString());
-
                 }
-
 
             }
 
@@ -55,10 +53,11 @@ public class DB {
             e.printStackTrace();
         }
 
+        // run query
         ArrayList<QueryRow> result = new ArrayList<>();
         result.clear();
-        switch (action) {
-            case "number of attendance":
+            switch (action) {
+            case "Attendance rate":
                 if (act.equals(">")) {
                     for (QueryRow student : studentList) {
                         if (student.getNumber() > number) {
@@ -85,7 +84,7 @@ public class DB {
                     }
                 }
                 break;
-            case "number of nonAttendance":
+            case "Nonattendance rate":
                 int numberOfTraining = attendanceLists.size();
                 if (act.equals(">")) {
                     for (QueryRow student : studentList) {
@@ -118,8 +117,6 @@ public class DB {
         JSONArray array = new JSONArray();
         try {
 
-
-
             for (QueryRow student : result) {
                 JSONObject object = new JSONObject();
                 object.put("name", student.getName());
@@ -133,6 +130,7 @@ public class DB {
 }
 
 
+    //add student to list result
     public static void add(String cv){
 
         for(QueryRow student : studentList){

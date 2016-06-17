@@ -41,20 +41,38 @@
     </FrameLayout>
 
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
 
+        <TextView
+            android:id="@+id/person_group_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/person_group_tip"
+            android:layout_alignTop="@+id/add_picture"
+            android:layout_alignLeft="@+id/addButton"
+            android:layout_alignStart="@+id/save"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="left"
+            android:layout_weight="4" />
 
-    <ImageButton
-        android:layout_width="65dp"
-        android:layout_height="53dp"
-        android:layout_weight="0.5"
+        <ImageButton
+            android:layout_width="53dp"
+            android:layout_height="53dp"
 
-        android:id="@+id/addButton"
-        android:background="@drawable/add"
-        android:layout_gravity="right"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
+            android:id="@+id/addButton"
+            android:background="@drawable/add"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="right"
+            android:layout_alignRight="@+id/person_group_tip"
 
+            android:layout_weight="1" />
+    </LinearLayout>
 
 
 </LinearLayout>

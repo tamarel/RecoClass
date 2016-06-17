@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -44,6 +45,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+//this class show the result of identification.
+
 public class StudentListActivity extends ActionBarActivity {
     ArrayList<String> studentList;
     private CustomListStudent listAdapter;
@@ -52,11 +55,12 @@ public class StudentListActivity extends ActionBarActivity {
     String courseId = "", userName = "", courseName = "",code="";
     Button addStudent, saveButton, exportButton, add_picture;
     TextView name, id;
+    String date;
     private List<StudentProperties> students;
     Calendar c = Calendar.getInstance();
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     SharedPreferences sharedpreferences;
-
+    public String currentDate;
     String formattedDate = sdf.format(c.getTime());
 
     @Override
@@ -70,8 +74,13 @@ public class StudentListActivity extends ActionBarActivity {
             courseId = bundle.getString("courseId");
             courseName = bundle.getString("courseName");
             userName = bundle.getString("userName");
+            date = bundle.getString("Date");
+            if (date!=null)
+                currentDate = date;
+            else currentDate=formattedDate;
             code = bundle.getString("codeCourse");
         }
+        //set title to date
         setTitle(formattedDate);
 
         setTitle(formattedDate);
@@ -96,7 +105,7 @@ public class StudentListActivity extends ActionBarActivity {
 
         }
 
-
+        //list adapter
         listAdapter = new CustomListStudent(this,
                 R.layout.student_row, students);
         listAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -104,6 +113,45 @@ public class StudentListActivity extends ActionBarActivity {
 
         list.setAdapter(listAdapter);
         final Context context = this;
+
+        //on click
+        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            public boolean onItemLongClick(AdapterView<?> arg0, View v,
+                                           final int index1, long arg3) {
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(StudentListActivity.this);
+                alertDialogBuilder.setMessage("Do you want to remove this row?");
+
+                alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+
+                        students.remove(index1);
+                        listAdapter = new CustomListStudent(StudentListActivity.this,
+                                R.layout.student_row, students);
+                        listAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+                        list.setAdapter(listAdapter);
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+
+
+                return true;
+            }
+
+        });
         // add button listener
         saveButton.setOnClickListener(new View.OnClickListener() {
 
@@ -111,7 +159,7 @@ public class StudentListActivity extends ActionBarActivity {
             public void onClick(View arg0) {
 
 
-                StorageHelper.saveList(userName, courseName, courseId, students, formattedDate);
+                StorageHelper.saveList(userName, courseName, courseId, students, currentDate);
 
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putStringSet("key", null);

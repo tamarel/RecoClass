@@ -50,7 +50,6 @@
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:background="@drawable/edittext_shape_login"
-
         android:gravity="center"
         android:layout_gravity="center_horizontal"
         android:inputType="textEmailAddress"
@@ -75,7 +74,7 @@
         android:layout_height="wrap_content"
         android:text="Restore your password"
         android:id="@+id/restore"
-
+        android:textColor="#fff"
         android:background="@drawable/buttonshape"
 
         android:layout_below="@+id/email"
@@ -85,6 +84,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="#fff"
+
         android:text="change your password"
         android:id="@+id/change_password"
         android:background="@drawable/buttonshape"

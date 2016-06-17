@@ -42,8 +42,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
+//this class show the list of courses
 public class CoursesActivity extends ActionBarActivity {
 
+
+    //delete course task
     class DeletePersonGroupTask extends AsyncTask<String, String, String> {
 
         @Override
@@ -63,6 +67,7 @@ public class CoursesActivity extends ActionBarActivity {
 
 
     }
+    SharedPreferences sharedpreferences;
 
     private List<CourseProperties> courseList;
     private CustomListAdapter listAdapter;
@@ -77,6 +82,12 @@ public class CoursesActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_courses);
+
+        // save previous list
+        sharedpreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putStringSet("key", null);
+        editor.commit();// commit is important here.
 
         addCourse = (ImageButton) findViewById(R.id.addButton);
         explain = (TextView) findViewById(R.id.explain);

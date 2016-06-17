@@ -104,6 +104,7 @@
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/action"
         android:layout_toRightOf="@+id/until"
-        android:layout_toEndOf="@+id/until" />
+        android:layout_toEndOf="@+id/until"
+        android:background="#4079eb" />
 
 </RelativeLayout>

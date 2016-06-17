@@ -6,7 +6,7 @@
     <color name="button_disabled_background">#C0C0C0</color>
     <color name="colorPrimary">#3366d1</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#030c43</color>
+    <color name="colorAccent">#18181a</color>
     <color name="transparent">#00000000</color>
 
 </resources>

@@ -60,6 +60,8 @@ public class CalendarActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+
+        //initialize
         _calendar = Calendar.getInstance(Locale.getDefault());
         month = _calendar.get(Calendar.MONTH) + 1;
         year = _calendar.get(Calendar.YEAR);
@@ -87,6 +89,7 @@ public class CalendarActivity extends Activity implements OnClickListener {
         calendarView.setAdapter(adapter);
     }
 
+    //set addapter
     private void setGridCellAdapterToDate(int month, int year) {
         adapter = new GridCellAdapter(getApplicationContext(),
                 R.id.calendar_day_gridcell, month, year);
@@ -190,7 +193,7 @@ public class CalendarActivity extends Activity implements OnClickListener {
             return list.size();
         }
 
-
+        //print month
         private void printMonth(int mm, int yy) {
             int trailingSpaces = 0;
             int daysInPrevMonth = 0;

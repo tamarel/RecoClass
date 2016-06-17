@@ -14,7 +14,7 @@ import com.microsoft.projectoxford.face.samples.R;
 
 import java.util.List;
 
-//This class build the listview row
+//This class build the listview row of student
 public class CustomListAdapter extends ArrayAdapter<CourseProperties> {
 
     private LayoutInflater inflater;

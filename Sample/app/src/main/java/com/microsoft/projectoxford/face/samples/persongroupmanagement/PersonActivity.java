@@ -87,6 +87,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+//this class manage person, name ,id and faces.
 
 public class PersonActivity extends ActionBarActivity {
     static Intent indata;
@@ -95,6 +96,7 @@ public class PersonActivity extends ActionBarActivity {
         // Indicate the next step is to add face in this person, or finish editing this person.
         boolean mAddFace;
 
+        //add person task
         AddPersonTask (boolean addFace) {
             mAddFace = addFace;
         }
@@ -148,7 +150,7 @@ public class PersonActivity extends ActionBarActivity {
             }
         }
     }
-
+//delete person
     class DeleteFaceTask extends AsyncTask<String, String, String> {
         String mPersonGroupId;
         UUID mPersonId;
@@ -206,7 +208,7 @@ public class PersonActivity extends ActionBarActivity {
         progressDialog.setMessage(progress);
         setInfo(progress);
     }
-
+//initiliaize
     boolean addNewPerson;
     String personId;
     String personIdNumber;
@@ -220,6 +222,7 @@ public class PersonActivity extends ActionBarActivity {
     // Progress dialog popped up when communicating with server.
     ProgressDialog progressDialog;
 
+    //on create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -374,7 +377,7 @@ public class PersonActivity extends ActionBarActivity {
         }
        if ( StorageHelper.createPerson(newPersonName, newPersonID, personId, personGroupId,
                 courseName,codeCourse ,PersonActivity.this) ==false)
-           Toast.makeText(PersonActivity.this,"something is wrong",Toast.LENGTH_LONG).show();
+           Toast.makeText(PersonActivity.this,"something went wrong(maybe you try to change name or ID",Toast.LENGTH_LONG).show();
 
         //StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
 
@@ -414,6 +417,7 @@ public class PersonActivity extends ActionBarActivity {
         }
     }
 
+//delete photos
     private void deleteSelectedItems() {
         List<String> newFaceIdList = new ArrayList<>();
         List<Boolean> newFaceChecked = new ArrayList<>();

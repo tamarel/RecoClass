@@ -1,5 +1,6 @@
 package com.microsoft.projectoxford.face.samples.persongroupmanagement;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,10 +18,12 @@ import com.parse.ParseUser;
 
 import java.util.UUID;
 
+
+//this class contain buttons .
 public class MenuActivity extends ActionBarActivity {
     public GridView grid;
     String userName1;
-
+    ProgressDialog progressDialog;
     public int[] mThumbIds = {
             R.drawable.add_list_button, R.drawable.add_course_button,
             R.drawable.settings_icon, R.drawable.calendar_button,
@@ -32,6 +35,8 @@ public class MenuActivity extends ActionBarActivity {
             "Settings", "Calendar",
             "About us" };
 
+
+    //on create
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,8 @@ public class MenuActivity extends ActionBarActivity {
         CustomGrid adapter = new CustomGrid(MenuActivity.this, names, mThumbIds);
         setTitle("Menu");
         Bundle bundle = getIntent().getExtras();
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle(getString(R.string.progress_dialog_title));
         if (bundle != null) {
             userName1 = bundle.getString("userName");
         }
@@ -49,12 +56,16 @@ public class MenuActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
+                //go to activity
                 switch(position){
                     case 0:
                         Intent intent= new Intent(MenuActivity.this,CoursesActivity.class);
+
+                        progressDialog.setMessage("please wait...");
+                        progressDialog.show();
                         intent.putExtra("userName", userName1);
                         startActivity(intent);
+                        progressDialog.dismiss();
                         break;
                     case 1:
                         intent= new Intent(MenuActivity.this,PersonGroupActivity.class);

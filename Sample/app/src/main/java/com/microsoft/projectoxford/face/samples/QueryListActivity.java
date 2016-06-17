@@ -35,6 +35,7 @@ import java.util.UUID;
 
 /**
  * Created by tamarazu on 6/10/2016.
+ * show list result of query
  */
 
 public class QueryListActivity extends Activity{
@@ -82,7 +83,7 @@ public class QueryListActivity extends Activity{
 
         list.setAdapter(listAdapter);
 
-
+        //export to csv file
         saveButton.setOnClickListener(new View.OnClickListener() {
 
             @Override

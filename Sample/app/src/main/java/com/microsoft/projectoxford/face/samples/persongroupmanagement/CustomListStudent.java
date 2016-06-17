@@ -26,7 +26,7 @@ import com.microsoft.projectoxford.face.samples.R;
 
 import java.util.List;
 
-
+//custom list student ( id , name )
 public class CustomListStudent  extends ArrayAdapter<StudentProperties> {
 
     private LayoutInflater inflater;

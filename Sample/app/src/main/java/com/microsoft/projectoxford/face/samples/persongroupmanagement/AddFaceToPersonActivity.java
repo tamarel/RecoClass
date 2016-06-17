@@ -66,6 +66,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -204,9 +206,13 @@ public class AddFaceToPersonActivity extends ActionBarActivity {
                     fileOutputStream.flush();
                     fileOutputStream.close();
 
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    mFaceGridViewAdapter.faceThumbnails.get(index).compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    // get byte array here
+
+
                     Uri uri = Uri.fromFile(file);
-                   StorageHelper.setFaceUri(
-                          faceId, uri.toString(), mPersonId, AddFaceToPersonActivity.this);
+                    StorageHelper.setFaceUri(faceId, uri.toString(), mPersonId, AddFaceToPersonActivity.this);
                     StorageHelper.saveFaceUri(faceId,uri.toString(),idStudent,mPersonId,mPersonGroupId,mPersonName,courseName,code,AddFaceToPersonActivity.this);
                 } catch (IOException e) {
                     setInfo(e.getMessage());

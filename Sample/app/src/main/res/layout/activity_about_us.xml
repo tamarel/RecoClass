@@ -44,11 +44,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:text="In this app, you can add courses, students
-        \n  In addition you can add photos to all student \n
-        and create a list of attendance by take picture.\n
-        All the list will save at DB and also you can run query and export to your cloud and mail.\n Enjoy!"
-        android:id="@+id/info"
+        android:text="In this app you could add course and students.\n In addition, you could add photos for all of the students and create an attendance list just by taking a picture.\n
+    All of the lists will be saved in the DB, allowing you to run a query and export to mail and cloud.\n
+    Enjoy!
+    "
+
+
+    android:id="@+id/info"
         android:textIsSelectable="false"
         android:textSize="20dp"
         android:textStyle="bold"
@@ -69,7 +71,8 @@
         android:layout_below="@+id/info"
         android:layout_alignLeft="@+id/logo"
         android:layout_alignStart="@+id/logo"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="#fff" />
 
 
 </RelativeLayout>

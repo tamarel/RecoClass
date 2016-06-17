@@ -32,6 +32,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+// this class responsibility about query
+
 public class QueriesActivity extends ActionBarActivity {
 
     private Calendar calendar;
@@ -51,7 +53,8 @@ public class QueriesActivity extends ActionBarActivity {
             courseId = bundle.getString("PersonGroupId");
             code = bundle.getString("codeCourse");
         }
-
+        setTitle("Query activity");
+        //initialize
         dateViewTo = (TextView) findViewById(R.id.toText);
         dateViewFrom = (TextView) findViewById(R.id.fromText);
         calendar = Calendar.getInstance();
@@ -107,7 +110,8 @@ public class QueriesActivity extends ActionBarActivity {
                     else {
                         Intent intent   = new Intent(QueriesActivity.this,QueryListActivity.class);
                         intent.putExtra("studentList", DB.runQuery(dateViewFrom.getText().toString(),
-                                dateViewTo.getText().toString(), courseId, spinnerAction.getSelectedItem().toString(), action2.getSelectedItem().toString(), Integer.parseInt(number.getText().toString()), QueriesActivity.this));
+                                dateViewTo.getText().toString(), courseId, spinnerAction.getSelectedItem().toString(),
+                                action2.getSelectedItem().toString(), Integer.parseInt(number.getText().toString()), QueriesActivity.this));
 
                         startActivity(intent);
                     }

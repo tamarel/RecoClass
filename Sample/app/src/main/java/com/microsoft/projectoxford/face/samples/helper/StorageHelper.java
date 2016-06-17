@@ -34,6 +34,7 @@ package com.microsoft.projectoxford.face.samples.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,6 +60,7 @@ import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.Parse;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -68,8 +70,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -616,7 +620,7 @@ public class StorageHelper {
         //need to add check on cv
         String facesUri="";
         ParseObject results;
-
+        ParseFile facefile;
         try{
 
             results = (ParseObject)(query.getFirst());
@@ -627,6 +631,7 @@ public class StorageHelper {
                 String id= arr.getJSONObject(i).getString("faceId");
                 if (faceId.equals(id)) {
                     facesUri=arr.getJSONObject(i).getString("faceUri");
+
                     return (arr.getJSONObject(i).getString("faceUri"));
                 }
             }
@@ -708,7 +713,6 @@ public class StorageHelper {
 
 
         //if exist only need update
-
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("List");
         query.whereEqualTo("LectureName", lectureName);
@@ -805,7 +809,7 @@ public class StorageHelper {
 
 
     //Tamar's function - set face uri per student
-    public static void saveFaceUri(String faceIdToAdd, String faceUri,String cv,String personId,String courseId ,String studentName,String courseName,String code,Context context){
+    public static void saveFaceUri( String faceIdToAdd, String faceUri,String cv,String personId,String courseId ,String studentName,String courseName,String code,Context context){
 
         Set<String> faceIds = getAllFaceIdsByStudent(personId, context);
         Set<String> newFaceIds = new HashSet<>();
@@ -829,10 +833,10 @@ public class StorageHelper {
             } else {
                 arr = new JSONArray();
             }
+
             JSONObject pnObj = new JSONObject();
             pnObj.put("faceId", faceIdToAdd);
             pnObj.put("faceUri", faceUri);
-
             arr.put(pnObj);
             courseResult.put("faces", arr.toString());
             courseResult.saveInBackground();
@@ -845,6 +849,7 @@ public class StorageHelper {
 
     }
 
+    //set face in local memory
     public static void setFaceUri(String faceIdToAdd, String faceUri, String personId, Context context) {
         SharedPreferences faceIdUriMap =
                 context.getSharedPreferences("FaceIdUriMap", Context.MODE_PRIVATE);

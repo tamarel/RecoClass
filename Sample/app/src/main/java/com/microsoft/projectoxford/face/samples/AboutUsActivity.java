@@ -19,6 +19,7 @@ import com.parse.ParseUser;
 
 import java.util.UUID;
 
+//about us activity
 public class AboutUsActivity extends ActionBarActivity {
 
     Button contact;
@@ -28,9 +29,9 @@ public class AboutUsActivity extends ActionBarActivity {
         setContentView(R.layout.activity_about_us);
 
         contact = (Button)findViewById(R.id.contact_us);
+        setTitle("About us");
 
-
-
+    //send mail.
         contact.setOnClickListener(new View.OnClickListener()
 
         {

@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
+// this class show the saved list of attendance.
 public class CourseActivity extends ActionBarActivity {
 
     private ArrayList<String> lists;
@@ -57,7 +58,8 @@ public class CourseActivity extends ActionBarActivity {
             courseId =bundle.getString("courseId");
             userName =bundle.getString("userName");
             courseCode =bundle.getString("courseCode");
-
+            if (courseName!=null )
+                setTitle(courseName);
         }
         list = (ListView)findViewById(R.id.list);
         addList =(ImageButton)findViewById(R.id.addButton);
@@ -77,6 +79,7 @@ public class CourseActivity extends ActionBarActivity {
         explain.setText("   choose a list \nor add a new list");
         explain.setGravity(View.TEXT_ALIGNMENT_CENTER);
 
+        //add list of attendance
         addList.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getBaseContext(), IdentificationActivity.class);
@@ -87,6 +90,8 @@ public class CourseActivity extends ActionBarActivity {
 
             }
         });
+
+        //manage course
         manageCourse.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getBaseContext(), PersonGroupActivity.class);
@@ -97,6 +102,8 @@ public class CourseActivity extends ActionBarActivity {
 
             }
         });
+
+        //go to query activity
         queryButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getBaseContext(), QueriesActivity.class);
@@ -119,7 +126,7 @@ public class CourseActivity extends ActionBarActivity {
                 alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        if (StorageHelper.deleteList(courseCode,lists.get(index).toString() ,CourseActivity.this))
+                        if (StorageHelper.deleteList(courseId,lists.get(index).toString() ,CourseActivity.this))
                             Toast.makeText(CourseActivity.this, "The list removed successfully", Toast.LENGTH_LONG).show();
                         else Toast.makeText(CourseActivity.this, "something is wrong", Toast.LENGTH_LONG).show();
 
@@ -159,6 +166,7 @@ public class CourseActivity extends ActionBarActivity {
                 intent.putExtra("courseId",courseId);
                 intent.putExtra("userName", userName);
                 intent.putExtra("codeCourse", courseCode);
+                intent.putExtra("Date", lists.get(index).toString());
          /*       CalendarActivity calendar = CalendarActivity.getInstance();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
                 String formattedDate = df.format(calendar.getTime());*/

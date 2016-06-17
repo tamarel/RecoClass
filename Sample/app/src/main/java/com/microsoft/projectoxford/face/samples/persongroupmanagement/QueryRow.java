@@ -4,6 +4,7 @@ import com.microsoft.projectoxford.face.samples.StudentListActivity;
 
 /**
  * Created by tamarazu on 5/23/2016.
+ * the row of the table in query
  */
 public class QueryRow {
     public String name;

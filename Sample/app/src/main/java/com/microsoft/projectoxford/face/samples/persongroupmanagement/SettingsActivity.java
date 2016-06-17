@@ -27,6 +27,7 @@ import com.parse.RequestPasswordResetCallback;
 
 import java.util.UUID;
 
+//settings activity
 public class SettingsActivity extends ActionBarActivity {
     TextView password,name,email,hello;
     Button restore,change_password;
@@ -34,7 +35,8 @@ public class SettingsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
+        setTitle("Settings");
+        //initialize
         name = (TextView)findViewById(R.id.username);
         hello = (TextView)findViewById(R.id.info);
         email = (TextView)findViewById(R.id.email);
@@ -43,6 +45,8 @@ public class SettingsActivity extends ActionBarActivity {
         hello.setText("hi "+ParseUser.getCurrentUser().getUsername()+",");
         name.setText(ParseUser.getCurrentUser().getUsername());
         email.setText(ParseUser.getCurrentUser().getEmail());
+
+        //restore the password
         restore.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -64,6 +68,7 @@ public class SettingsActivity extends ActionBarActivity {
             }
         });
 
+        //change password
         change_password.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -94,6 +99,7 @@ public class SettingsActivity extends ActionBarActivity {
                                         ParseUser currentUser = ParseUser.getCurrentUser();
                                         currentUser.setPassword(userInput.getText().toString());
                                         currentUser.saveInBackground();
+                                        Toast.makeText(SettingsActivity.this, "Password changed successfully", Toast.LENGTH_LONG).show();
 
 
 
@@ -114,7 +120,6 @@ public class SettingsActivity extends ActionBarActivity {
                 alertDialog.show();
 
 
-                Toast.makeText(SettingsActivity.this, "Password changed successfully", Toast.LENGTH_LONG).show();
             }
 
         });

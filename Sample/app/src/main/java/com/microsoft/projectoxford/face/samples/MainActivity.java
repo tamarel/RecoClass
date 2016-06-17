@@ -32,14 +32,19 @@
 //
 package com.microsoft.projectoxford.face.samples;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.SmsManager;
 import android.text.method.PasswordTransformationMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -64,6 +69,24 @@ import java.net.PasswordAuthentication;
 import java.security.KeyStore;
 
 public class MainActivity extends ActionBarActivity {
+
+    public boolean isSmsPermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+
+                return true;
+            } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk<23 upon installation
+
+            return true;
+        }
+
+    }
+
         public static final String PREFS_NAME = "MyPrefsFile";
         private static  String TYPE = "NONE";
         private ImageButton signButton,registerNowButton;
@@ -77,7 +100,7 @@ public class MainActivity extends ActionBarActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-
+            isSmsPermissionGranted();
             final SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
             String userName = settings.getString("userName", "");
             String password = settings.getString("password", "");
@@ -97,7 +120,6 @@ public class MainActivity extends ActionBarActivity {
             progressDialog = new ProgressDialog(this);
             progressDialog.setTitle(getString(R.string.progress_dialog_title));
             userNameField.setImeActionLabel("", EditorInfo.IME_ACTION_NEXT);
-
 
 
         userNameField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -123,68 +145,68 @@ public class MainActivity extends ActionBarActivity {
 
         });
 
-
+            //forgot password action
             forgot_password.setOnClickListener(new View.OnClickListener()
 
-                                               {
-                                                   public void onClick(View v) {
+           {
+               public void onClick(View v) {
 
 
-                                                       LayoutInflater li = LayoutInflater.from(MainActivity.this);
-                                                       View promptsView = li.inflate(R.layout.email_prompt, null);
+                   LayoutInflater li = LayoutInflater.from(MainActivity.this);
+                   View promptsView = li.inflate(R.layout.email_prompt, null);
 
-                                                       AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                                                               MainActivity.this);
+                   AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                           MainActivity.this);
 
-                                                       // set prompts.xml to alertdialog builder
-                                                       alertDialogBuilder.setView(promptsView);
+                   // set prompts.xml to alertdialog builder
+                   alertDialogBuilder.setView(promptsView);
 
-                                                       final EditText userInput = (EditText) promptsView
-                                                               .findViewById(R.id.editTextDialogUserInput);
+                   final EditText userInput = (EditText) promptsView
+                           .findViewById(R.id.editTextDialogUserInput);
 
-                                                       // set dialog message
-                                                       alertDialogBuilder
-                                                               .setCancelable(false)
-                                                               .setPositiveButton("OK",
-                                                                       new DialogInterface.OnClickListener() {
-                                                                           public void onClick(DialogInterface dialog, int id) {
-                                                                               // get user input and set it to result
-                                                                               // edit text
-                                                                               //result.setText(userInput.getText());
-                                                                               if (!userInput.getText().toString().equals("")) {
-                                                                                   ParseUser.requestPasswordResetInBackground(userInput.getText().toString(),
-                                                                                           new RequestPasswordResetCallback() {
-                                                                                               public void done(ParseException e) {
-                                                                                                   if (e == null) {
-                                                                                                       Toast.makeText(MainActivity.this, "An email was successfully " +
-                                                                                                               "sent with reset instructions.", Toast.LENGTH_LONG).show();
-                                                                                                   } else {
-                                                                                                       Toast.makeText(MainActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
-                                                                                                       // Something went wrong. Look at the ParseException to see what's up.
-                                                                                                   }
-                                                                                               }
-                                                                                           });
-                                                                               } else
-                                                                                   Toast.makeText(getApplicationContext(), "sorry you must enter your mail", Toast.LENGTH_SHORT).show();
+                   // set dialog message
+                   alertDialogBuilder
+                           .setCancelable(false)
+                           .setPositiveButton("OK",
+                                   new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int id) {
+                                           // get user input and set it to result
+                                           // edit text
+                                           //result.setText(userInput.getText());
+                                           if (!userInput.getText().toString().equals("")) {
+                                               ParseUser.requestPasswordResetInBackground(userInput.getText().toString(),
+                                                       new RequestPasswordResetCallback() {
+                                                           public void done(ParseException e) {
+                                                               if (e == null) {
+                                                                   Toast.makeText(MainActivity.this, "An email was successfully " +
+                                                                           "sent with reset instructions.", Toast.LENGTH_LONG).show();
+                                                               } else {
+                                                                   Toast.makeText(MainActivity.this, "Something went wrong.", Toast.LENGTH_LONG).show();
+                                                                   // Something went wrong. Look at the ParseException to see what's up.
+                                                               }
+                                                           }
+                                                       });
+                                           } else
+                                               Toast.makeText(getApplicationContext(), "sorry you must enter your mail", Toast.LENGTH_SHORT).show();
 
-                                                                           }
-                                                                       })
-                                                               .setNegativeButton("Cancel",
-                                                                       new DialogInterface.OnClickListener() {
-                                                                           public void onClick(DialogInterface dialog, int id) {
-                                                                               dialog.cancel();
-                                                                           }
-                                                                       });
+                                       }
+                                   })
+                           .setNegativeButton("Cancel",
+                                   new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int id) {
+                                           dialog.cancel();
+                                       }
+                                   });
 
-                                                       // create alert dialog
-                                                       AlertDialog alertDialog = alertDialogBuilder.create();
+                   // create alert dialog
+                   AlertDialog alertDialog = alertDialogBuilder.create();
 
-                                                       // show it
-                                                       alertDialog.show();
+                   // show it
+                   alertDialog.show();
 
 
-                                                   }
-                                               }
+               }
+           }
 
             );
 
@@ -193,11 +215,11 @@ public class MainActivity extends ActionBarActivity {
                                                  {
                                                      public void onClick(View v) {
 
-                                                         Intent intent = new Intent(getBaseContext(), LoginActivity.class);
-                                                         startActivity(intent);
+                 Intent intent = new Intent(getBaseContext(), LoginActivity.class);
+                 startActivity(intent);
 
-                                                     }
-                                                 }
+             }
+         }
 
             );
 
@@ -207,27 +229,27 @@ public class MainActivity extends ActionBarActivity {
                                           {
 
                                               public void onClick(View arg0) {
-                                                  usernametxt = userNameField.getText().toString();
-                                                  passwordtxt = passwordField.getText().toString();
-                                                  if (!usernametxt.equals(settings.getString("userName","")) ||
-                                                          !passwordtxt.equals(settings.getString("password",""))) {
-                                                      open(getCurrentFocus());
-                                                  }
-                                                  else {
-                                                      // Retrieve the text entered from the EditText
+                  usernametxt = userNameField.getText().toString();
+                  passwordtxt = passwordField.getText().toString();
+                  if (!usernametxt.equals(settings.getString("userName","")) ||
+                          !passwordtxt.equals(settings.getString("password",""))) {
+                      open(getCurrentFocus());
+                  }
+                  else {
+                      // Retrieve the text entered from the EditText
 
 
-                                                      progressDialog.setMessage("please wait...");
-                                                      progressDialog.show();
-                                                      connect();
-                                                  }
+                      progressDialog.setMessage("please wait...");
+                      progressDialog.show();
+                      connect();
+                  }
 
 
 
 
-                                                  }
+                  }
 
-                                          }
+          }
 
             );
 
