@@ -1,9 +1,11 @@
-# list-presence-by-face-recognition
+# list-of-attendance-by-face-recognition
 
-RecoClass is a android application for create list presence by face recognition
-There is Microsoft's open sorce of recognition and idenfication.
+In this app you could add course & students.
+In addition, you could add photos for all of the students
+and create an attendance list just by taking a picture.
+All of the lists will be saved in the DB,
+allowing you to run a query and export to mail and cloud.
+Enjoy!
 
-In my project i implement Microsoft code and change the save data in cloud,
-and finally i will do list presence.
 
 Tamar.
